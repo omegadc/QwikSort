@@ -1,0 +1,15 @@
+{
+    "name": "Local DevContainer",
+    "image": "debian:latest",  
+    "features": {
+      "ghcr.io/devcontainers/features/common-utils:1": {}
+    },
+    "customizations": {
+      "vscode": {
+        "settings": {},
+        "extensions": []
+      }
+    },
+    "remoteUser": "root"
+  }
+  
