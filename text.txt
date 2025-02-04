@@ -1,0 +1,3 @@
+hello this is a text file while in vim running on linux devcontainer
+:wq!
+
