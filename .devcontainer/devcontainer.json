@@ -7,7 +7,13 @@
     "customizations": {
       "vscode": {
         "settings": {},
-        "extensions": []
+        "extensions": [
+          "ms-python.python",
+          "ms-python.vscode-pylance",
+          "vscode-icons-team.vscode-icons",
+          "bradlc.vscode-tailwindcss",
+          "EditorConfig.EditorConfig",
+          "ms-vsliveshare.vsliveshare"]
       }
     },
     "remoteUser": "root"
