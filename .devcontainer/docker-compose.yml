@@ -1,6 +1,7 @@
-services:
+service:
   workspace:
     build:
       context: .
       dockerfile: Dockerfile
     volumes: ["../..:/workspace"]
+    command: /bin/bash

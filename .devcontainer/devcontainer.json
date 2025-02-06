@@ -2,11 +2,13 @@
     "name": "python_workspace",
     "dockerComposeFile": "docker-compose.yml",
     "service":"workspace",
-    "workspaceFolder": "/workspace${localWorkspaceFolderBasename}",
+    "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
     "remoteUser": "student",
     "customizations": {
       "vscode": {
-        "settings": {},
+        "settings": {
+          "terminal.integrated.defaultProfile.linux": "bash"
+        },
         "extensions": [
           "ms-python.python",
           "ms-python.vscode-pylance",
@@ -16,6 +18,7 @@
           "ms-vsliveshare.vsliveshare",
           "ms-azuretools.vscode-docker"]
       }
-    }
+    },
+    "postCreateCommand": "pip install -r requirements.txt"
   }
   
