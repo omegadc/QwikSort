@@ -1,9 +1,9 @@
 {
-    "name": "Local DevContainer",
-    "image": "debian:latest",  
-    "features": {
-      "ghcr.io/devcontainers/features/common-utils:1": {}
-    },
+    "name": "python_workspace",
+    "dockerComposeFile": "docker-compose.yml",
+    "service":"workspace",
+    "workspaceFolder": "/workspace${localWorkspaceFolderBasename}",
+    "remoteUser": "student",
     "customizations": {
       "vscode": {
         "settings": {},
@@ -16,7 +16,6 @@
           "ms-vsliveshare.vsliveshare",
           "ms-azuretools.vscode-docker"]
       }
-    },
-    "remoteUser": "root"
+    }
   }
   

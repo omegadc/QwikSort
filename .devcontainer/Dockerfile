@@ -14,9 +14,10 @@ RUN apt update && apt upgrade -y
 # Dependencies for debian
 RUN apt install curl git python3 vim --no-install-recommends &&\
     apt-get clean 
-
+RUN apt install neofetch
 RUN apt install python3-pip python3.12 -y
 
+RUN mkdir /opt/venv/ && chown root:student
 ENV VIRTUAL_ENV=/opt/venv
 
 RUN python3 -m venv $VIRTUAL_ENV
