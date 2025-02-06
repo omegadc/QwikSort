@@ -13,7 +13,8 @@
           "vscode-icons-team.vscode-icons",
           "bradlc.vscode-tailwindcss",
           "EditorConfig.EditorConfig",
-          "ms-vsliveshare.vsliveshare"]
+          "ms-vsliveshare.vsliveshare",
+          "ms-azuretools.vscode-docker"]
       }
     },
     "remoteUser": "root"
