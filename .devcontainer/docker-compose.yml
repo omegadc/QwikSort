@@ -3,5 +3,8 @@ service:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes: ["../..:/workspace"]
-    command: /bin/bash
+    volumes:
+      - ../..:/workspace
+    command: sleep infinity
+    stdin_open: true
+    ttyl: true 
