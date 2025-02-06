@@ -3,6 +3,4 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - debian=debian
     volumes: ["../..:/workspace"]
