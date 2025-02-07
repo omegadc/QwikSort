@@ -1,10 +1,5 @@
-service:
+services:
   workspace:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: mcr.microsoft.com/devcontainers/python:3.12-bookworm
     volumes:
-      - ../..:/workspace
-    command: sleep infinity
-    stdin_open: true
-    ttyl: true 
+      - ..:/workspace
