@@ -2,20 +2,20 @@
     "name": "python_workspace",
     "dockerComposeFile": "docker-compose.yml",
     "service":"workspace",
-    "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
-    "remoteUser": "root",
-    "customizations": {
-      "vscode": {
-        "settings": {},
-        "extensions": [
-          "ms-python.python",
-          "ms-python.vscode-pylance",
-          "vscode-icons-team.vscode-icons",
-          "bradlc.vscode-tailwindcss",
-          "EditorConfig.EditorConfig",
-          "ms-vsliveshare.vsliveshare",
-          "ms-azuretools.vscode-docker"]
-      }
-    }
-  }
+    "workspaceFolder": "/workspace",
+    // "customizations": {
+    //   "vscode": {
+    //     "settings": {},
+    //     "extensions": [
+    //       "ms-python.python",
+    //       "ms-python.vscode-pylance",
+    //       "vscode-icons-team.vscode-icons",
+    //       "bradlc.vscode-tailwindcss",
+    //       "EditorConfig.EditorConfig",
+    //       "ms-vsliveshare.vsliveshare",
+    //       "ms-azuretools.vscode-docker"]
+    //   }
+    // },
+    "postCreateCommand": "pip install -r requirements.txt"
+}
   
