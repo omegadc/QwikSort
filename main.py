@@ -1,30 +1,46 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout
 import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit
+from PyQt6.QtWidgets import QTextEdit, QVBoxLayout, QWidget
+from PyQt6.QtGui import QIcon
 
-def on_button_click():
-    label.setText("Button Clicked!")
+class MyApp(QWidget):
 
-# Create application
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("QwikSort")
+        self.setWindowIcon(QIcon('time_chart_business_calender_management_icon_263056.ico'))
+        self.resize(500, 400) #width & height
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+
+        #widgets
+        self.inputField = QLineEdit()
+        button = QPushButton('&Say Hello :D', clicked=self.sayHello)
+        # button.clicked.connect(self.sayHello)
+        self.output = QTextEdit()
+
+        layout.addWidget(self.inputField)
+        layout.addWidget(button)
+        layout.addWidget(self.output)
+
+    def sayHello(self):
+        inputText = self.inputField.text()
+        self.output.setText('Hello {0}'.format(inputText))
+
+# app = QApplication([])
 app = QApplication(sys.argv)
-window = QWidget()
-window.setWindowTitle("Simple PyQt GUI")
-window.setGeometry(100, 100, 300, 200)
+app.setStyleSheet('''
+    QWidget {
+        font-size: 25px;
+    }
+    QPushButton {
+        font-size: 20px;              
+    }
+''')
 
-# Create a layout
-layout = QVBoxLayout()
-
-# Create a label
-global label
-label = QLabel("Hello, PyQt!", window)
-layout.addWidget(label)
-
-# Create a button
-button = QPushButton("Click Me", window)
-button.clicked.connect(on_button_click)
-layout.addWidget(button)
-
-# Set layout and show window
-window.setLayout(layout)
+window = MyApp()
 window.show()
 
-sys.exit(app.exec_())
+app.exec()
