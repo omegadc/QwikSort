@@ -12,7 +12,7 @@ class FileInfo:
         self.dateModified = dateModified
 
     # Helper function to retrieve metadata for a file and return a dictionary
-    def getMetadata(filePath):
+    def getMetadata(self, filePath):
         filename, fileextension = os.path.splitext(filePath)
         filesize = os.path.getsize(filePath)
         fileDateModified = os.path.getmtime(filePath)
