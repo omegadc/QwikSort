@@ -1,5 +1,6 @@
 import os
-import time
+import time # TODO: Remove once done debugging, implement pytests
+from datetime import datetime
 
 class FileInfo:
     # Default constructor
@@ -16,8 +17,8 @@ class FileInfo:
     def getMetadata(filePath):
         filename, fileextension = os.path.splitext(os.path.basename(filePath))
         filesize = os.path.getsize(filePath)
-        fileDateModified = os.path.getmtime(filePath)
-        fileDateCreated = os.path.getctime(filePath)
+        fileDateModified = datetime.fromtimestamp(os.path.getmtime(filePath))
+        fileDateCreated = datetime.fromtimestamp(os.path.getctime(filePath))
 
         return dict(
             path = filePath, 
@@ -46,6 +47,8 @@ class FileInfo:
                 f"path={self.path!r}, size={self.size}, "
                 f"dateCreated={self.dateCreated}, dateModified={self.dateModified})")
     
+# TODO: Remove the code below once done debugging, implement pytests
+
 # Test function
 def main():
     test_file = "test_file.txt"
@@ -69,8 +72,8 @@ def main():
     print(f"Extension: {file_info.extension}")
     print(f"Path: {file_info.path}")
     print(f"Size: {file_info.size} bytes")
-    print(f"Date Created: {time.ctime(file_info.dateCreated)}")
-    print(f"Date Modified: {time.ctime(file_info.dateModified)}")
+    print(f"Date Created: {file_info.dateCreated.strftime("%Y-%m-%d %H:%M:%S")}")
+    print(f"Date Modified: {file_info.dateModified.strftime("%Y-%m-%d %H:%M:%S")}")
 
 # Only run main when directly testing
 if __name__ == "__main__":
