@@ -1,10 +1,12 @@
 import sys
 import os
+from pathlib import Path
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QLabel, QFileDialog, 
     QVBoxLayout, QWidget, QListView, QTreeView, QFileSystemModel, QHBoxLayout
 )
 from PySide6.QtCore import QDir
+from PySide6.QtGui import QAction, QIcon
 
 class FileExplorer(QMainWindow):
     def __init__(self):
@@ -57,6 +59,24 @@ class FileExplorer(QMainWindow):
         # Set the main layout
         self.central_widget.setLayout(self.main_layout)
         self.setCentralWidget(self.central_widget)
+    # Create exit action with icon, shortcut, status tip and close window click event
+        path = Path(__file__).resolve().parent
+        exit_action = QAction(QIcon(os.path.join(path, '../images/exit.png')), '&Exit', self)
+        exit_action.setShortcut('Ctrl+Q')
+        exit_action.setStatusTip('Exit application')
+        exit_action.triggered.connect(self.close)
+
+        # Create menu bar
+        menubar = self.menuBar()
+
+        # Add File menu
+        menu_file = menubar.addMenu('&File')
+
+        # Add exit action to File menu
+        menu_file.addAction(exit_action)
+
+        # Create status bar
+        self.statusBar()
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "All Files (*);;Text Files (*.txt)")
