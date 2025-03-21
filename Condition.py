@@ -21,7 +21,7 @@ class Condition:
         self.type = type
         self.operation = operation
         self.value = value
-        self.actions = {
+        self.functions = {
             "name": self.checkName,
             "extension": self.checkExtension,
             "size": self.checkSize,
@@ -97,8 +97,8 @@ class Condition:
 
     # Primary function to compare a given argument to value based on the condition type
     def check(self, file):
-        if self.type in self.actions:
-            return self.actions[self.type](file)
+        if self.type in self.functions:
+            return self.functions[self.type](file)
         else:
             raise ValueError(f"Invalid key: {self.type}")
     
