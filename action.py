@@ -1,7 +1,8 @@
 import os
-from file_info import *
+from file_info import FileInfo
 import send2trash
 import shutil
+import time # TODO: Remove once done debugging, implement pytests
 
 class Action:
     def __init__(self, type, finalFolder, newName = None):

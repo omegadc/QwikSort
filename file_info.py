@@ -43,9 +43,7 @@ class FileInfo:
         )
     
     def __repr__(self):
-        return (f"FileInfo(name={self.name!r}, extension={self.extension!r}, "
-                f"path={self.path!r}, size={self.size}, "
-                f"dateCreated={self.dateCreated}, dateModified={self.dateModified})")
+        return f"FileInfo(name='{self.name}', size={self.size}B)"
     
 # TODO: Remove the code below once done debugging, implement pytests
 
