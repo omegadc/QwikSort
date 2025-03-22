@@ -95,7 +95,7 @@ class Condition:
         
         return Condition.evaluate(file.dateModified, self.operation, self.value)
 
-    # Primary function to compare a given argument to value based on the condition type
+    # Primary function to check if a file meets the condition
     def check(self, file):
         if self.type in self.functions:
             return self.functions[self.type](file)
