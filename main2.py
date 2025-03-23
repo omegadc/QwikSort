@@ -1,19 +1,27 @@
 import sys
 import os
 from pathlib import Path
+from PySide6.QtCore import QDir, QSize
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QLabel, QFileDialog, 
     QVBoxLayout, QWidget, QListView, QTreeView, QFileSystemModel, QHBoxLayout
 )
-from PySide6.QtCore import QDir
 from PySide6.QtGui import QAction, QIcon, QScreen
 
-class FileExplorer(QMainWindow):
+# Subclass QMainWindow to customize your application's main window
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("File Explorer")
-        self.setGeometry(100, 100, 800, 500)
+        self.setWindowTitle("Qwiksort")
+
+        # button = QPushButton("Press Me!")
+
+        self.setMinimumSize(QSize(400, 300))
+        self.setMaximumSize(QSize(800,670))
+
+        # Set the central widget of the Window.
+        # self.setCentralWidget(button)
 
         # Main layout
         self.central_widget = QWidget()
@@ -23,21 +31,15 @@ class FileExplorer(QMainWindow):
         self.label = QLabel(f"Current Directory: {os.getcwd()}")
         self.main_layout.addWidget(self.label)
 
-        # Button to open a file
-        self.open_button = QPushButton("Open File")
-        self.open_button.clicked.connect(self.open_file_dialog)
-        self.main_layout.addWidget(self.open_button)
-
         # Button to change the working directory
         self.change_dir_button = QPushButton("Change Directory")
         self.change_dir_button.clicked.connect(self.change_directory)
         self.main_layout.addWidget(self.change_dir_button)
-
         # File system model
         self.model = QFileSystemModel()
         self.model.setRootPath(QDir.currentPath())
 
-        # Horizontal layout for tree and list views
+         # Horizontal layout for tree and list views
         self.explorer_layout = QHBoxLayout()
 
         # Tree view for directory navigation
@@ -56,10 +58,7 @@ class FileExplorer(QMainWindow):
         # Add the explorer layout to the main layout
         self.main_layout.addLayout(self.explorer_layout)
 
-        # Set the main layout
-        self.central_widget.setLayout(self.main_layout)
-        self.setCentralWidget(self.central_widget)
-    # Create exit action with icon, shortcut, status tip and close window click event
+        # Create exit action with icon, shortcut, status tip and close window click event
         path = Path(__file__).resolve().parent
         exit_action = QAction(QIcon(os.path.join(path, '../images/exit.png')), '&Exit', self)
         exit_action.setShortcut('Ctrl+Q')
@@ -77,14 +76,12 @@ class FileExplorer(QMainWindow):
 
         # Create status bar
         self.statusBar()
-        # Center window on screen
+
+        # Set the main layout
+        self.central_widget.setLayout(self.main_layout)
+        self.setCentralWidget(self.central_widget)
         self.window_center()
-
-    def open_file_dialog(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "All Files (*);;Text Files (*.txt)")
-        if file_path:
-            self.label.setText(f"Selected File: {file_path}")
-
+    
     def change_directory(self):
         """Opens a directory selection dialog and updates the file system view."""
         dir_path = QFileDialog.getExistingDirectory(self, "Select Directory", QDir.currentPath())
@@ -116,8 +113,9 @@ class FileExplorer(QMainWindow):
         # Set Form's Center Location
         self.move(x, y)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = FileExplorer()
-    window.show()
-    sys.exit(app.exec())
+app = QApplication(sys.argv)
+
+window = MainWindow()
+window.show()
+
+app.exec()
