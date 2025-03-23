@@ -4,17 +4,14 @@ from folder_info import FolderInfo
 from file_info import FileInfo
 
 class SortingRule:
-    def __init__(self, condition, action, folder):
+    def __init__(self, condition, action):
         if not isinstance(condition, Condition):
             raise ValueError("SortingRule must take a Condition object")
         if not isinstance(action, Action):
             raise ValueError("SortingRule must take an Action object")
-        if not isinstance(folder, FolderInfo):
-            raise ValueError("SortingRule must take a FolderInfo object for folder assignment")
 
         self.condition = condition
         self.action = action
-        self.folder = folder
             
     
     def runRule(self, file):
