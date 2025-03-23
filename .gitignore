@@ -170,6 +170,7 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# Sorting test files and directories
+# Configuration and testing directories
 test_folder/
 test_file/
+logs/
