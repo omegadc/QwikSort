@@ -26,6 +26,16 @@ class Action:
     def verify(file):
         if not isinstance(file, FileInfo):
             raise TypeError("Action only handles type FileInfo")
+    
+    # Helper function to get the final path of the file
+    def get_target_path(self, file):
+        if self.type in ["move", "copy"]:
+            return os.path.join(self.finalFolder, file.name)
+        elif self.type == "rename":
+            return file.path.replace(file.name, self.newName)
+        elif self.type == "recycle":
+            return "Recycled"
+        return "Unknown"
 
     # Function to move a given file to the final folder
     def moveFile(self, file):
@@ -67,11 +77,24 @@ class Action:
         Action.verify(file)
 
         send2trash(file.path)
+    
+    # Function to log the action
+    def logAction(self, file, logger):
+        old_path = file.path
+        new_path = self.get_target_path(file)
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+
+        log_entry = f"[{timestamp}] {self.type.upper()} | From: {old_path} -> To: {new_path}\n"
+        logger.write(log_entry)
+        logger.flush()
             
     # Primary function to execute the action based on given arguments
-    def execute(self, file):
+    def execute(self, file, logger=None):
         if self.type in self.functions:
-            return self.functions[self.type](file)
+            result = self.functions[self.type](file)
+            if logger:
+                self.log_action(file, logger)
+            return result
         else:
             raise ValueError(f"Invalid key: {self.type}")
     
