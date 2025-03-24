@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(577, 471)
+        MainWindow.resize(657, 575)
         self.actionOpen_Rulesets = QAction(MainWindow)
         self.actionOpen_Rulesets.setObjectName(u"actionOpen_Rulesets")
         self.actionRulesetImport = QAction(MainWindow)
@@ -69,24 +69,6 @@ class Ui_MainWindow(object):
 
 
         self.gridLayout.addLayout(self.verticalLayout_2, 2, 0, 2, 1)
-
-        self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label = QLabel(self.centralwidget)
-        self.label.setObjectName(u"label")
-        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy)
-        self.label.setMaximumSize(QSize(16777215, 20))
-
-        self.verticalLayout.addWidget(self.label)
-
-        self.leTargetDirectory = QLineEdit(self.centralwidget)
-        self.leTargetDirectory.setObjectName(u"leTargetDirectory")
-
-        self.verticalLayout.addWidget(self.leTargetDirectory)
-
-
-        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 2)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -157,13 +139,46 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addLayout(self.verticalLayout_3, 2, 1, 2, 1)
 
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.label = QLabel(self.centralwidget)
+        self.label.setObjectName(u"label")
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
+        self.label.setMaximumSize(QSize(16777215, 20))
+
+        self.verticalLayout.addWidget(self.label)
+
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.leTargetDirectory = QLineEdit(self.centralwidget)
+        self.leTargetDirectory.setObjectName(u"leTargetDirectory")
+
+        self.horizontalLayout_6.addWidget(self.leTargetDirectory)
+
+        self.pushbtn_Dir = QPushButton(self.centralwidget)
+        self.pushbtn_Dir.setObjectName(u"pushbtn_Dir")
+        font = QFont()
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setItalic(False)
+        self.pushbtn_Dir.setFont(font)
+
+        self.horizontalLayout_6.addWidget(self.pushbtn_Dir)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_6)
+
+
+        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 2)
+
 
         self.verticalLayout_4.addLayout(self.gridLayout)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 577, 33))
+        self.menubar.setGeometry(QRect(0, 0, 657, 33))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuFile.setGeometry(QRect(311, 197, 138, 54))
@@ -201,7 +216,6 @@ class Ui_MainWindow(object):
         self.actionExport_Ruleset.setText(QCoreApplication.translate("MainWindow", u"Export Ruleset", None))
         self.btnClear.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
         self.btnPlus.setText(QCoreApplication.translate("MainWindow", u"+", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Target Directory", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Files", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Sort?", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Rules", None))
@@ -209,6 +223,8 @@ class Ui_MainWindow(object):
         self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Load", None))
         self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Delete Files", None))
         self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Sort", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Target Directory", None))
+        self.pushbtn_Dir.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuRulesets.setTitle(QCoreApplication.translate("MainWindow", u"Rulesets", None))
         self.menuRollback.setTitle(QCoreApplication.translate("MainWindow", u"Rollback", None))
