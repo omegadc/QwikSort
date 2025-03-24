@@ -11,13 +11,16 @@ class Ruleset:
         self.folder = folder
             
     
-    def runRules(self, file):
+    def runRules(self, file, logger=None):
         if not isinstance(file, FileInfo):
             raise ValueError("runRules must take a FileInfo object")
         
         for rule in self.sortingRules:
             if rule.condition.check(file):
-                rule.action.execute(file)
+                if logger:
+                    rule.action.execute(file, logger)
+                else:
+                    rule.action.execute(file)  
     
     def addRule(self, rule):
         if not isinstance(rule, SortingRule):
