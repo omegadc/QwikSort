@@ -36,5 +36,11 @@ class Ruleset:
         except ValueError:
             raise ValueError("The rule does not exist in the ruleset.")
     
+    @classmethod
+    def fromRules(cls, folder, rules):
+        instance = cls(folder)
+        instance.sortingRules = rules
+        return instance
+    
     def __repr__(self):
         return f"<Ruleset for {self.folder.name} with {len(self.sortingRules)} rules>"
