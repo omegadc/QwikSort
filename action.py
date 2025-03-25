@@ -41,11 +41,15 @@ class Action:
     def moveFile(self, file):
         Action.verify(file)
 
+        destination = os.path.join(self.finalFolder, os.path.basename(file.path))
+
         try:
-            shutil.move(file.path, self.finalFolder)
-        except FileExistsError:
-            # TODO: Implement overwriting logic
-            raise NotImplementedError("Overwrite logic has not been implemented")
+            if os.path.exists(destination):
+                return  # Skip the file
+            shutil.move(file.path, destination)
+        except Exception as e:
+            print(f"Failed to move file '{file.path}' to '{destination}': {e}")
+
     
     # Function to copy a given file to the final folder
     def copyFile(self, file):
@@ -93,7 +97,7 @@ class Action:
         if self.type in self.functions:
             result = self.functions[self.type](file)
             if logger:
-                self.log_action(file, logger)
+                self.logAction(file, logger)
             return result
         else:
             raise ValueError(f"Invalid key: {self.type}")
