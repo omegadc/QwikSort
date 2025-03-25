@@ -26,6 +26,12 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(657, 575)
+        # Template for QAction
+        # self.actionOpen_Rulesets = QAction(MainWindow)
+        # self.actionOpen_Rulesets.setObjectName(u"actionOpen_Rulesets")
+        self.actionOpen_Dir = QAction(MainWindow)
+        self.actionOpen_Dir.setObjectName(u"actionOpen_Dir")
+        ## 
         self.actionOpen_Rulesets = QAction(MainWindow)
         self.actionOpen_Rulesets.setObjectName(u"actionOpen_Rulesets")
         self.actionRulesetImport = QAction(MainWindow)
@@ -200,6 +206,10 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuRulesets.menuAction())
         self.menubar.addAction(self.menuRollback.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
+
+        # actions for File Qaction
+        self.menuFile.addAction(self.actionOpen_Dir)
+
         self.menuRulesets.addAction(self.actionOpen_Rulesets)
         self.menuRulesets.addAction(self.actionRulesetImport)
         self.menuRulesets.addAction(self.actionExport_Ruleset)
@@ -211,6 +221,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.actionOpen_Dir.setText(QCoreApplication.translate("MainWindow", u"Open Folder", None))
         self.actionOpen_Rulesets.setText(QCoreApplication.translate("MainWindow", u"Open Rulesets", None))
         self.actionRulesetImport.setText(QCoreApplication.translate("MainWindow", u"Import Ruleset", None))
         self.actionExport_Ruleset.setText(QCoreApplication.translate("MainWindow", u"Export Ruleset", None))

@@ -13,9 +13,11 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()  # Create an instance of the UI class
         self.ui.setupUi(self)  # Set up the UI
         self.ui.actionRulesetImport.triggered.connect(self.okay)
+        self.ui.actionOpen_Dir.triggered.connect(self.change_directory)
 
         # Changing file directory
         self.ui.pushbtn_Dir.clicked.connect(self.change_directory)
+        self.ui.leTargetDirectory.returnPressed.connect(self.change_home)
 
         # Setting up list view 
         self.model = QFileSystemModel()
@@ -35,12 +37,28 @@ class MainWindow(QMainWindow):
     #     if file_path:
     #         self.label.setText(f"Selected File: {file_path}")
 
+    def change_home(self):
+        """Opens a directory selection dialog and updates the file system view."""
+        # QDir.absoluteFilePath()
+        # QDir.homePath()
+        # dir_path = QFileDialog.getExistingDirectory(self, "Select Direct") #(self, "Select Directory", QDir.currentPath())
+        path = self.ui.leTargetDirectory.text()
+        if QDir(path).exists():
+            os.chdir(path)
+            self.ui.label.setText(f"Target Directory: {path}")
+            self.model.setRootPath(path)
+            self.ui.listFiles.setRootIndex(self.model.index(path))
+        else:
+            print(f"The directory '{path}' does not exists.")
+
     def change_directory(self):
+
         """Opens a directory selection dialog and updates the file system view."""
         dir_path = QFileDialog.getExistingDirectory(self, "Select Directory", QDir.currentPath())
         if dir_path:
             os.chdir(dir_path)  # Change the working directory
-            self.ui.leTargetDirectory.setText(f"Current Directory: {dir_path}")
+            self.ui.label.setText(f"Target Directory: {dir_path}")
+            self.ui.leTargetDirectory.setText(f"{dir_path}")
             self.model.setRootPath(dir_path)
             # self.tree_view.setRootIndex(self.model.index(dir_path))
             self.ui.listFiles.setRootIndex(self.model.index(dir_path))
@@ -53,6 +71,7 @@ class MainWindow(QMainWindow):
         dialog = QDialog()
         dialog_ruleset = Ui_Dialog()
         dialog_ruleset.setupUi(dialog)
+        dialog.setWindowTitle("Ruleset")
         if dialog.exec() == QDialog.accepted:
             print("dialog accepted")
 
