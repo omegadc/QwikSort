@@ -1,7 +1,7 @@
 import sys
 import os
-from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QFileSystemModel, QFileDialog
-from PySide6.QtCore import QDir
+from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QFileSystemModel, QFileDialog, QCompleter
+from PySide6.QtCore import QDir, QModelIndex, Qt
 from MainWindow import Ui_MainWindow
 from ruleset import Ui_Dialog
 
@@ -24,8 +24,13 @@ class MainWindow(QMainWindow):
         self.model.setRootPath(QDir.currentPath())
         self.ui.listFiles.setModel(self.model)
         self.ui.listFiles.setRootIndex(self.model.index(QDir.currentPath()))
-        # self.explorer_layout.addWidget(self.ui.listFiles)
-
+        # Connect list view click to change directory
+        self.ui.listFiles.doubleClicked.connect(self.on_list_view_click)
+        ## Creating functionality for menuFile Options
+        self.ui.actionExit.setShortcut('Ctrl+Q')
+        self.ui.actionExit.setStatusTip('Exit application')
+        self.ui.actionExit.triggered.connect(self.close)
+        #
         ## making ruleset menu bar exec qaction
         self.ui.actionOpen_Rulesets.triggered.connect(self.ruleset_action)
     ### example for QAction for RulesetImport 
@@ -75,6 +80,17 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.accepted:
             print("dialog accepted")
 
+    def on_list_view_click(self, index: QModelIndex):
+        if index.isValid():
+            selected_path = self.model.filePath(index)
+            if QDir(selected_path).exists():
+                os.chdir(selected_path)
+                self.update_directory_view(selected_path)
+    def update_directory_view(self, path):
+        self.ui.label.setText(f"Target Directory: {path}")
+        self.ui.leTargetDirectory.setText(f"{path}")
+        self.model.setRootPath(path)
+        self.ui.listFiles.setRootIndex(self.model.index(path))
 
 
 app = QApplication(sys.argv)
