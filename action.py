@@ -5,11 +5,11 @@ import shutil
 import time # TODO: Remove once done debugging, implement pytests
 
 class Action:
-    def __init__(self, type, finalFolder, newName = None):
+    def __init__(self, type, finalFolder = None, newName = None):
         self.type = type
         self.newName = newName
 
-        if os.path.isdir(finalFolder):
+        if os.path.isdir(finalFolder) or finalFolder is None:
             self.finalFolder = finalFolder
         else:
             raise TypeError("Action.finalFolder must be an existing directory")
@@ -28,7 +28,7 @@ class Action:
             raise TypeError("Action only handles type FileInfo")
     
     # Helper function to get the final path of the file
-    def get_target_path(self, file):
+    def getTargetPath(self, file):
         if self.type in ["move", "copy"]:
             return os.path.join(self.finalFolder, file.name)
         elif self.type == "rename":
@@ -36,6 +36,22 @@ class Action:
         elif self.type == "recycle":
             return "Recycled"
         return "Unknown"
+    
+    def getReverseAction(self, file: FileInfo) -> 'Action':
+        if self.type == "move":
+            return Action("move", finalFolder=file.path)
+        elif self.type == "copy":
+            return Action("recycle")
+        elif self.type == "rename":
+            return Action("rename", newName=file.name)
+        elif self.type == "copy":
+            return Action("recycle") # Delete the copy
+        elif self.type == "recycle":
+            # Can't restore recycled files without backup
+            raise NotImplementedError("Undo for recycle is not supported without a backup.")
+        else:
+            raise ValueError(f"No reverse defined for action type {self.type}")
+        
 
     # Function to move a given file to the final folder
     def moveFile(self, file):
@@ -85,7 +101,7 @@ class Action:
     # Function to log the action
     def logAction(self, file, logger):
         old_path = file.path
-        new_path = self.get_target_path(file)
+        new_path = self.getTargetPath(file)
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
         log_entry = f"[{timestamp}] {self.type.upper()} | From: {old_path} -> To: {new_path}\n"
@@ -125,7 +141,7 @@ def main():
     testFileInfo = FileInfo.fromPath(test_file)
 
     # Create a new action to move a file to test_folder
-    moveFile = Action("copy", "test_folder")
+    moveFile = Action("copy", finalFolder="test_folder")
 
     # Execute the action
     moveFile.execute(testFileInfo)
