@@ -17,35 +17,27 @@ class UndoBatch:
     timestamp: datetime
     actions: List[ActionRecord]
 
-
 MAX_UNDO = 5
 undo_stack: List[UndoBatch] = []
-restore_point: Optional[UndoBatch] = None # optional snapshot
+restore_point: Optional[UndoBatch] = None
 
 
-def recordBatch(file_actions: List[tuple], description: str):
-    batch = UndoBatch(timestamp=datetime.now(), description=description, actions=[])
-
-    for action, file, result_path in file_actions:
-        reverse_action = action.getReverseAction(file)
-        record = ActionRecord(
-            forward_action=action,
-            reverse_action=reverse_action,
-            file=file,
-            result_path=result_path
-        )
-        batch.actions.append(record)
-
+def recordBatch(action_records: List[ActionRecord], description: str):
+    batch = UndoBatch(
+        timestamp=datetime.now(),
+        description=description,
+        actions=action_records
+    )
     undo_stack.append(batch)
 
     if len(undo_stack) > MAX_UNDO:
         undo_stack.pop(0)
 
-def perform_sort_and_record(files: List[FileInfo], action: Action, logger=None, description="Sort Operation"):
+
+def performSortAndRecord(files: List[FileInfo], action: Action, logger=None, description="Sort Operation"):
     records = []
 
     for file in files:
-        original_path = file.path
         new_path = action.get_target_path(file)
 
         action.execute(file, logger=logger)
@@ -56,12 +48,12 @@ def perform_sort_and_record(files: List[FileInfo], action: Action, logger=None, 
             forward_action=action,
             reverse_action=reverse_action,
             file=file,
-            original_path=original_path,
-            new_path=new_path
+            result_path=new_path
         )
         records.append(record)
 
     recordBatch(records, description)
+
 
 def undoLast():
     if not undo_stack:
@@ -78,6 +70,7 @@ def undoLast():
         except Exception as e:
             print(f"Failed to undo {record.file.path}: {e}")
 
+
 def saveRestorePoint():
     global restore_point
     if not undo_stack:
@@ -85,6 +78,7 @@ def saveRestorePoint():
         return
     restore_point = undo_stack[-1]
     print(f"Restore point saved: {restore_point.description}")
+
 
 def rollbackToRestorePoint():
     global restore_point
@@ -98,4 +92,3 @@ def rollbackToRestorePoint():
             record.reverse_action.execute(record.file)
         except Exception as e:
             print(f"Failed to restore {record.file.path}: {e}")
-
