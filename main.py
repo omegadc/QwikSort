@@ -2,7 +2,7 @@ import sys
 import os
 from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QFileSystemModel, QFileDialog, QCompleter
 from PySide6.QtCore import QDir, QModelIndex, Qt
-from MainWindow import Ui_MainWindow
+from mainwindow2 import Ui_MainWindow
 from ruleset import Ui_Dialog
 
 # Subclass QMainWindow to customize your application's main window
@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()  # Create an instance of the UI class
         self.ui.setupUi(self)  # Set up the UI
         self.ui.actionRulesetImport.triggered.connect(self.okay)
-        self.ui.actionOpen_Dir.triggered.connect(self.change_directory)
+        self.ui.actionOpen_Folder.triggered.connect(self.change_directory)
 
         # Changing file directory
         self.ui.pushbtn_Dir.clicked.connect(self.change_directory)
@@ -30,9 +30,17 @@ class MainWindow(QMainWindow):
         self.ui.actionExit.setShortcut('Ctrl+Q')
         self.ui.actionExit.setStatusTip('Exit application')
         self.ui.actionExit.triggered.connect(self.close)
+        self.ui.pushButton_2.clicked.connect(self.navigate_up_directory())
         #
         ## making ruleset menu bar exec qaction
         self.ui.actionOpen_Rulesets.triggered.connect(self.ruleset_action)
+
+    # navigate_up_directory
+    def navigate_up_directory(self):
+        current_dir = QDir.currentPath()
+        if not QDir.isEmpty():
+            parent_dir = current_dir.cdUp()
+            parent_dir = current_dir.cd
     ### example for QAction for RulesetImport 
     def okay(self):
         print("clicked")
