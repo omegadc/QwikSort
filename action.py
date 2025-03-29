@@ -21,16 +21,18 @@ class Action:
             "rename": self.renameFile
         }
     
-    # Helper function to verify if a file is of type FileInfo
+    # Helper function to verify if a file is of type FileInfo and if the file actually exists
     @staticmethod
     def verify(file):
         if not isinstance(file, FileInfo):
             raise TypeError("Action only handles type FileInfo")
+        if not os.path.exists(file.path):
+            raise FileNotFoundError(f"File not found: {file.path}")
     
     # Helper function to get the final path of the file
     def getTargetPath(self, file):
         if self.type in ["move", "copy"]:
-            return os.path.join(self.finalFolder, file.name)
+            return os.path.join(self.finalFolder, file.name + file.extension)
         elif self.type == "rename":
             return file.path.replace(file.name, self.newName)
         elif self.type == "recycle":
@@ -39,7 +41,8 @@ class Action:
     
     def getReverseAction(self, file: FileInfo) -> 'Action':
         if self.type == "move":
-            return Action("move", finalFolder=file.path)
+            print(f"REVERSE: Reverse destination for file at path {file.path} is {os.path.dirname(file.path)}")
+            return Action("move", finalFolder=os.path.dirname(file.path))
         elif self.type == "copy":
             return Action("recycle")
         elif self.type == "rename":
@@ -61,7 +64,9 @@ class Action:
 
         try:
             if os.path.exists(destination):
+                print(f"MOVE: {destination} already exists, skipping move for {file.path}...") # TODO: remove debug
                 return  # Skip the file
+            print(f"MOVE: {file.path} -> {destination}") # TODO: remove debug
             shutil.move(file.path, destination)
         except Exception as e:
             print(f"Failed to move file '{file.path}' to '{destination}': {e}")
@@ -111,9 +116,12 @@ class Action:
     # Primary function to execute the action based on given arguments
     def execute(self, file, logger=None):
         if self.type in self.functions:
+            print(f"ACTION: Executing action of type {self.type}")
             result = self.functions[self.type](file)
             if logger:
                 self.logAction(file, logger)
+            file.path = self.getTargetPath(file)
+            file.name = os.path.basename(file.path)
             return result
         else:
             raise ValueError(f"Invalid key: {self.type}")

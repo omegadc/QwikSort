@@ -40,9 +40,8 @@ def performSortAndRecord(files: List[FileInfo], action: Action, logger=None, des
     for file in files:
         new_path = action.get_target_path(file)
 
-        action.execute(file, logger=logger)
-
         reverse_action = action.get_reverse_action(file, new_path)
+        action.execute(file, logger=logger)
 
         record = ActionRecord(
             forward_action=action,

@@ -1,4 +1,6 @@
 import os
+import time
+import rollback
 from datetime import datetime
 from file_info import FileInfo
 from folder_info import FolderInfo
@@ -24,24 +26,30 @@ def getAllFiles(folder):
         elif isinstance(item, FolderInfo):
             yield from getAllFiles(item)
 
-def runSortingJob(rulesets, target_folder, log_dir="logs"):
+def runSortingJob(rulesets, target_folder, log_dir="logs", description="Sorting Job"):
     if not isinstance(target_folder, FolderInfo):
         raise ValueError("Target folder must be a valid FolderInfo object.")
 
     log_file = createLogFile(log_dir)
     all_files = list(getAllFiles(target_folder))
+    all_records = []
 
     try:
         for file in all_files:
             for ruleset in rulesets:
-                ruleset.runRules(file, logger=log_file)
-
+                records = ruleset.runRules(file, logger=log_file)
+                all_records.extend(records)
+                if records:
+                    break
     finally:
         log_file.close()
+    
+    if all_records:
+        rollback.recordBatch(all_records, description)
 
 def main():
     # Define the target directory
-    target_directory = r"C:\Users\Reggie\Files\Documents\Code\Python\QwikSortTestFolders\perf_test_data - Copy"
+    target_directory = r"C:\Users\Reggie\Files\Documents\Code\Python\QwikSortTestFolders\testing"
     target = FolderInfo.fromPath(target_directory, True)
 
     # Create some rulesets
@@ -62,7 +70,13 @@ def main():
     rulesets = [photosRuleset, videosRuleset]
 
     # Run the job with the created rulesets on the target folder
-    runSortingJob(rulesets, target)
+    runSortingJob(rulesets, target, description="Test sort")
+
+    # Undo the changes in 10 seconds
+    print("------------------")
+    time.sleep(10)
+
+    rollback.undoLast()
 
 if __name__ == "__main__":
     main()
