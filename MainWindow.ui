@@ -270,8 +270,8 @@
    <widget class="QMenu" name="menuRulesets">
     <property name="geometry">
      <rect>
-      <x>349</x>
-      <y>190</y>
+      <x>399</x>
+      <y>183</y>
       <width>139</width>
       <height>126</height>
      </rect>
@@ -286,32 +286,43 @@
    <widget class="QMenu" name="menuRollback">
     <property name="geometry">
      <rect>
-      <x>441</x>
-      <y>197</y>
-      <width>138</width>
-      <height>54</height>
+      <x>477</x>
+      <y>183</y>
+      <width>196</width>
+      <height>102</height>
      </rect>
     </property>
     <property name="title">
      <string>Rollback</string>
     </property>
+    <addaction name="actionCreate_New_Restore_Point"/>
+    <addaction name="actionRestore_Back_to_Restore_Point"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>197</y>
+      <x>652</x>
+      <y>183</y>
       <width>138</width>
-      <height>54</height>
+      <height>102</height>
      </rect>
     </property>
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionTutorial"/>
+    <addaction name="actionUninstall"/>
+   </widget>
+   <widget class="QMenu" name="menuPreferences">
+    <property name="title">
+     <string>Preferences</string>
+    </property>
+    <addaction name="actionLight_Dark_Mode"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRulesets"/>
    <addaction name="menuRollback"/>
+   <addaction name="menuPreferences"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -337,6 +348,12 @@
    <property name="text">
     <string>Open Folder</string>
    </property>
+   <property name="shortcut">
+    <string extracomment="Ctrl+Q"/>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ShortcutContext::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionCreate_New_Folder">
    <property name="text">
@@ -349,6 +366,31 @@
   <action name="actionDelete_Folder">
    <property name="text">
     <string>Delete Folder</string>
+   </property>
+  </action>
+  <action name="actionCreate_New_Restore_Point">
+   <property name="text">
+    <string>Create New Restore Point</string>
+   </property>
+  </action>
+  <action name="actionRestore_Back_to_Restore_Point">
+   <property name="text">
+    <string>Revert to Restore Point</string>
+   </property>
+  </action>
+  <action name="actionTutorial">
+   <property name="text">
+    <string>Tutorial</string>
+   </property>
+  </action>
+  <action name="actionUninstall">
+   <property name="text">
+    <string>Uninstall</string>
+   </property>
+  </action>
+  <action name="actionLight_Dark_Mode">
+   <property name="text">
+    <string>Light/Dark Mode</string>
    </property>
   </action>
  </widget>

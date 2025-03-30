@@ -1,11 +1,25 @@
 import sys
 import os
-from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QFileSystemModel, QFileDialog, QCompleter
-from PySide6.QtCore import QDir, QModelIndex, Qt
-from mainwindow2 import Ui_MainWindow
+from PySide6.QtWidgets import QApplication, QWidget, QHBoxLayout, QMainWindow, QDialog, QFileSystemModel, QFileDialog, QLabel
+from PySide6.QtWidgets import QCheckBox, QTreeWidgetItem, QTreeWidget, QDateTimeEdit, QCalendarWidget
+from PySide6.QtCore import QDir, QModelIndex, Qt, QCalendar
+from MainWindow import Ui_MainWindow
 from ruleset import Ui_Dialog
 
 # Subclass QMainWindow to customize your application's main window
+  # need to create a custom widget in order to have checkbox next to label/text
+        # for QTreeWidget
+def create_item_widget(text, control_widget):
+
+    widget = QWidget()
+    layout = QHBoxLayout(widget)
+    layout.setContentsMargins(0, 0, 0, 0)
+    label = QLabel(text)
+    layout.addWidget(label)
+    layout.addWidget(control_widget)
+    # Optionally add a stretch if you want the widget aligned to the left
+    layout.addStretch()
+    return widget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -17,30 +31,32 @@ class MainWindow(QMainWindow):
 
         # Changing file directory
         self.ui.pushbtn_Dir.clicked.connect(self.change_directory)
+        self.ui.pushbtn_Dir.pressed.connect(self.change_directory)
         self.ui.leTargetDirectory.returnPressed.connect(self.change_home)
 
-        # Setting up list view 
+        # Setting up List View
         self.model = QFileSystemModel()
-        self.model.setRootPath(QDir.currentPath())
+        self.model.setRootPath(QDir.homePath())
         self.ui.listFiles.setModel(self.model)
-        self.ui.listFiles.setRootIndex(self.model.index(QDir.currentPath()))
+        self.ui.listFiles.setRootIndex(self.model.index(QDir.homePath()))
+        self.ui.label.setText("Target Directory: "+QDir.homePath())
+        self.ui.leTargetDirectory.setText(f"{QDir.homePath()}")
         # Connect list view click to change directory
         self.ui.listFiles.doubleClicked.connect(self.on_list_view_click)
         ## Creating functionality for menuFile Options
         self.ui.actionExit.setShortcut('Ctrl+Q')
         self.ui.actionExit.setStatusTip('Exit application')
         self.ui.actionExit.triggered.connect(self.close)
-        self.ui.pushButton_2.clicked.connect(self.navigate_up_directory())
-        #
+        # self.ui.pushButton_2.clicked.connect(self.navigate_up_directory()
+
+        # Setting Up Collapsible Menu for Ruleset
+        self.ui.listRules.setHeaderLabels(["Ruleset Options"])
+        self.setup_ruleset_widget()
+
+
         ## making ruleset menu bar exec qaction
         self.ui.actionOpen_Rulesets.triggered.connect(self.ruleset_action)
 
-    # navigate_up_directory
-    def navigate_up_directory(self):
-        current_dir = QDir.currentPath()
-        if not QDir.isEmpty():
-            parent_dir = current_dir.cdUp()
-            parent_dir = current_dir.cd
     ### example for QAction for RulesetImport 
     def okay(self):
         print("clicked")
@@ -51,10 +67,6 @@ class MainWindow(QMainWindow):
     #         self.label.setText(f"Selected File: {file_path}")
 
     def change_home(self):
-        """Opens a directory selection dialog and updates the file system view."""
-        # QDir.absoluteFilePath()
-        # QDir.homePath()
-        # dir_path = QFileDialog.getExistingDirectory(self, "Select Direct") #(self, "Select Directory", QDir.currentPath())
         path = self.ui.leTargetDirectory.text()
         if QDir(path).exists():
             os.chdir(path)
@@ -65,9 +77,8 @@ class MainWindow(QMainWindow):
             print(f"The directory '{path}' does not exists.")
 
     def change_directory(self):
-
-        """Opens a directory selection dialog and updates the file system view."""
-        dir_path = QFileDialog.getExistingDirectory(self, "Select Directory", QDir.currentPath())
+        #Opens a directory selection dialog and updates the file system view.
+        dir_path = QFileDialog.getExistingDirectory(self, "Select Directory", QDir.homePath())
         if dir_path:
             os.chdir(dir_path)  # Change the working directory
             self.ui.label.setText(f"Target Directory: {dir_path}")
@@ -94,11 +105,58 @@ class MainWindow(QMainWindow):
             if QDir(selected_path).exists():
                 os.chdir(selected_path)
                 self.update_directory_view(selected_path)
+
     def update_directory_view(self, path):
         self.ui.label.setText(f"Target Directory: {path}")
         self.ui.leTargetDirectory.setText(f"{path}")
         self.model.setRootPath(path)
         self.ui.listFiles.setRootIndex(self.model.index(path))
+
+    def setup_ruleset_widget(self):
+        data_ruleset = {"File":["png","jpg","pdf","txt"],
+                        "Date":["Modified","Created"],
+                        "Name":["Includes","Excludes"],
+                        "Other":["Size", "Dimensions","Location"]}
+        file_item = QTreeWidgetItem(["File"])
+        self.ui.listRules.addTopLevelItem(file_item)
+        
+        # CheckBox Item
+        for values in data_ruleset["File"]:
+            checkbox = QCheckBox()
+            widget = create_item_widget(values,checkbox)
+            checkbox_item = QTreeWidgetItem()
+            file_item.addChild(checkbox_item)
+            self.ui.listRules.setItemWidget(checkbox_item,0,widget)
+        # Date / DateTimeEdit
+        date_item = QTreeWidgetItem(["Date"])
+        self.ui.listRules.addTopLevelItem(date_item)
+        datetime_edit = QDateTimeEdit()
+        datetime_edit.setCalendarPopup(True)
+        datetime_edit.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        # have to do these for each entry with an input
+        datetime_edit2 = QDateTimeEdit()
+        datetime_edit2.setCalendarPopup(True)
+        datetime_edit2.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        widget1 = create_item_widget("Modified", datetime_edit)
+        widget2 = create_item_widget("Created", datetime_edit2)
+        datetime_item = QTreeWidgetItem(["Modified"])
+        datetime_item2 = QTreeWidgetItem(["Created"])
+        date_item.addChild(datetime_item)
+        date_item.addChild(datetime_item2)
+        self.ui.listRules.setItemWidget(datetime_item, 0, widget1)
+        self.ui.listRules.setItemWidget(datetime_item2, 0, widget2)
+
+        # Name
+        name_item = QTreeWidgetItem(["Name"])
+        self.ui.listRules.addTopLevelItem(name_item)
+        # Other 
+        other_item = QTreeWidgetItem(["Other"])
+        self.ui.listRules.addTopLevelItem(other_item)
+
+        self.ui.listRules.expandAll()
+        
+
+
 
 
 app = QApplication(sys.argv)

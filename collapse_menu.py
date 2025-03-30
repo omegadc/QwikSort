@@ -1,39 +1,63 @@
-from PySide6.QtWidgets import QApplication, QTreeWidget, QTreeWidgetItem, QPushButton, QVBoxLayout, QWidget
+import sys
+from PySide6.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout,
+    QTreeWidget, QTreeWidgetItem, QCheckBox, QRadioButton, QDateTimeEdit
+)
+from PySide6.QtCore import Qt
 
-class CollapsibleList(QTreeWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setHeaderHidden(True)
-        self.itemClicked.connect(self.toggle_children)
+        self.setWindowTitle("Tree with Input Widgets and Text")
 
-    def add_item(self, parent, text, children=None):
-         item = QTreeWidgetItem([text])
-         if parent is None:
-            self.addTopLevelItem(item)
-         else:
-            parent.addChild(item)
-         if children:
-             for child_text in children:
-                self.add_item(item, child_text)
-         return item
+        # Create a central widget and a vertical layout
+        central_widget = QWidget()
+        layout = QVBoxLayout(central_widget)
+        self.setCentralWidget(central_widget)
 
-    def toggle_children(self, item, column):
-        if item.childCount() > 0:
-            collapsed = item.isExpanded()
-            item.setExpanded(not collapsed)
+        # Create QTreeWidget with two columns: one for the label and one for the widget
+        self.tree_widget = QTreeWidget()
+        self.tree_widget.setHeaderLabels(["Option", "Control"])
+        layout.addWidget(self.tree_widget)
 
-if __name__ == '__main__':
-    app = QApplication([])
-    window = QWidget()
-    layout = QVBoxLayout(window)
+        self.setup_tree_widget()
 
-    collapsible_list = CollapsibleList()
-    
-    item1 = collapsible_list.add_item(None, "Section 1", ["Item 1.1", "Item 1.2"])
-    collapsible_list.add_item(item1, "Item 1.3", ["Item 1.3.1","Item 1.3.2"])
-    collapsible_list.add_item(None, "Section 2", ["Item 2.1", "Item 2.2", "Item 2.3"])
-    collapsible_list.add_item(None, "Section 3")
+    def setup_tree_widget(self):
+        # Create a top-level "Settings" item
+        settings_item = QTreeWidgetItem(["Settings"])
+        self.tree_widget.addTopLevelItem(settings_item)
 
-    layout.addWidget(collapsible_list)
+        # --- Checkbox Item ---
+        # Description in column 0 and embed a QCheckBox in column 1 with its own text.
+        checkbox_item = QTreeWidgetItem(["Enable Feature", ""])
+        settings_item.addChild(checkbox_item)
+        checkbox = QCheckBox("Activate")
+        # Optionally adjust alignment (if needed)
+        checkbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.tree_widget.setItemWidget(checkbox_item, 1, checkbox)
+
+        # --- Radio Button Item ---
+        # Description in column 0 and embed a QRadioButton in column 1 with its text.
+        radio_item = QTreeWidgetItem(["Select Option", ""])
+        settings_item.addChild(radio_item)
+        radio = QRadioButton("Option 1")
+        self.tree_widget.setItemWidget(radio_item, 1, radio)
+
+        # --- Date/Time Edit Item ---
+        # Description in column 0 and embed a QDateTimeEdit in column 1.
+        datetime_item = QTreeWidgetItem(["Pick Date/Time", ""])
+        settings_item.addChild(datetime_item)
+        datetime_edit = QDateTimeEdit()
+        datetime_edit.setCalendarPopup(True)
+        datetime_edit.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        self.tree_widget.setItemWidget(datetime_item, 1, datetime_edit)
+
+        # Expand all items so the user can see the content
+        self.tree_widget.expandAll()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.resize(400, 300)
     window.show()
-    app.exec()
+    sys.exit(app.exec())
