@@ -3,8 +3,8 @@ import os
 from PySide6.QtWidgets import QApplication, QWidget, QHBoxLayout, QMainWindow, QDialog, QFileSystemModel, QFileDialog, QLabel
 from PySide6.QtWidgets import QCheckBox, QTreeWidgetItem, QTreeWidget, QDateTimeEdit, QCalendarWidget
 from PySide6.QtCore import QDir, QModelIndex, Qt, QCalendar
-from MainWindow import Ui_MainWindow
-from ruleset import Ui_Dialog
+from Frontend.MainWindow import Ui_MainWindow
+from Frontend.ruleset import Ui_Dialog
 
 # Subclass QMainWindow to customize your application's main window
   # need to create a custom widget in order to have checkbox next to label/text
