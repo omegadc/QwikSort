@@ -3,8 +3,18 @@ import os
 from PySide6.QtWidgets import QApplication, QWidget, QHBoxLayout, QMainWindow, QDialog, QFileSystemModel, QFileDialog, QLabel
 from PySide6.QtWidgets import QCheckBox, QTreeWidgetItem, QTreeWidget, QDateTimeEdit, QCalendarWidget
 from PySide6.QtCore import QDir, QModelIndex, Qt, QCalendar
+# Front End Import
 from Frontend.MainWindow import Ui_MainWindow
 from Frontend.ruleset import Ui_Dialog
+# Backend Import
+from Backend.action import *
+from Backend.sorting_job import *
+from Backend.sorting_rule import *
+from Backend.condition import *
+from Backend.ruleset import *
+from Backend.folder_info import *
+from Backend.file_info import *
+from Backend.rollback import *
 
 # Subclass QMainWindow to customize your application's main window
   # need to create a custom widget in order to have checkbox next to label/text
@@ -56,6 +66,9 @@ class MainWindow(QMainWindow):
 
         ## making ruleset menu bar exec qaction
         self.ui.actionOpen_Rulesets.triggered.connect(self.ruleset_action)
+
+        ## Sorting Job Implementation
+        self.ui.pushButton_5.clicked.connect(runSortingJob(Ruleset,FolderInfo.fromPath(QDir.currentPath())))
 
     ### example for QAction for RulesetImport 
     def okay(self):

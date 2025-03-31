@@ -124,7 +124,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.pushButton_4)
 
         self.pushButton_5 = QPushButton(self.centralwidget)
-        self.pushButton_5.setObjectName(u"pushButton_5")
+        self.pushButton_5.setObjectName(u"SortBttn")
         sizePolicy.setHeightForWidth(self.pushButton_5.sizePolicy().hasHeightForWidth())
         self.pushButton_5.setSizePolicy(sizePolicy)
 
