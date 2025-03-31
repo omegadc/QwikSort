@@ -31,6 +31,8 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+# hiding UI Image for reflection
+UI_Qwiksort.png
 
 # Installer logs
 pip-log.txt
