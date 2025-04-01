@@ -1,7 +1,7 @@
-from condition import Condition
-from action import Action
-from folder_info import FolderInfo
-from file_info import FileInfo
+from Backend.condition import Condition
+from Backend.action import Action
+from Backend.folder_info import FolderInfo
+from Backend.file_info import FileInfo
 
 class SortingRule:
     def __init__(self, condition, action):

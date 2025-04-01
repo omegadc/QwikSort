@@ -1,6 +1,6 @@
-from sorting_rule import SortingRule
-from folder_info import FolderInfo
-from file_info import FileInfo
+from Backend.sorting_rule import SortingRule
+from Backend.folder_info import FolderInfo
+from Backend.file_info import FileInfo
 from rollback import ActionRecord
 
 class Ruleset:

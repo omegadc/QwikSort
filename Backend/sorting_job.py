@@ -2,13 +2,13 @@ import os
 import time
 import rollback
 from datetime import datetime
-from file_info import FileInfo
-from folder_info import FolderInfo
 
-from sorting_rule import SortingRule
-from ruleset import Ruleset
-from condition import Condition
-from action import Action
+from Backend.file_info import FileInfo
+from Backend.folder_info import FolderInfo
+from Backend.sorting_rule import SortingRule
+from Backend.ruleset import Ruleset
+from Backend.condition import Condition
+from Backend.action import Action
 
 def createLogFile(log_dir="logs"):
     if not os.path.exists(log_dir):
