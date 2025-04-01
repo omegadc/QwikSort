@@ -45,7 +45,7 @@ def runSortingJob(rulesets, target_folder, log_dir="logs", description="Sorting 
         log_file.close()
     
     if all_records:
-        rollback.recordBatch(all_records, description)
+        Backend.rollback.recordBatch(all_records, description)
 
 def main():
     # Define the target directory
@@ -76,7 +76,7 @@ def main():
     print("------------------")
     time.sleep(10)
 
-    rollback.undoLast()
+    Backend.rollback.undoLast()
 
 if __name__ == "__main__":
     main()
