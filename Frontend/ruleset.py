@@ -16,7 +16,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
-    QHBoxLayout, QLabel, QListView, QSizePolicy,
+    QHBoxLayout, QLabel, QTreeWidget, QSizePolicy,
     QVBoxLayout, QWidget)
 
 class Ui_Dialog(object):
@@ -42,7 +42,7 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addWidget(self.label_rules)
 
-        self.listView = QListView(self.verticalWidget_3)
+        self.listView = QTreeWidget(self.verticalWidget_3)
         self.listView.setObjectName(u"listView")
 
         self.verticalLayout.addWidget(self.listView)
@@ -58,7 +58,7 @@ class Ui_Dialog(object):
 
         self.verticalLayout_2.addWidget(self.label_sets)
 
-        self.listView_2 = QListView(self.verticalWidget_3)
+        self.listView_2 = QTreeWidget(self.verticalWidget_3)
         self.listView_2.setObjectName(u"listView_2")
 
         self.verticalLayout_2.addWidget(self.listView_2)
