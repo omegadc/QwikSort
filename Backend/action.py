@@ -1,5 +1,5 @@
 import os
-from file_info import FileInfo
+from Backend.file_info import FileInfo
 import send2trash
 import shutil
 import time # TODO: Remove once done debugging, implement pytests

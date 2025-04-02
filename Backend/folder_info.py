@@ -1,5 +1,5 @@
 import os
-from file_info import FileInfo
+from Backend.file_info import FileInfo
 
 class FolderInfo:
     def __init__(self, name, contents, isTarget):

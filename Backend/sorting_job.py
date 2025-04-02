@@ -1,14 +1,14 @@
 import os
 import time
-import rollback
+import Backend.rollback
 from datetime import datetime
-from file_info import FileInfo
-from folder_info import FolderInfo
 
-from sorting_rule import SortingRule
-from ruleset import Ruleset
-from condition import Condition
-from action import Action
+from Backend.file_info import FileInfo
+from Backend.folder_info import FolderInfo
+from Backend.sorting_rule import SortingRule
+from Backend.ruleset import Ruleset
+from Backend.condition import Condition
+from Backend.action import Action
 
 def createLogFile(log_dir="logs"):
     if not os.path.exists(log_dir):
@@ -45,7 +45,7 @@ def runSortingJob(rulesets, target_folder, log_dir="logs", description="Sorting 
         log_file.close()
     
     if all_records:
-        rollback.recordBatch(all_records, description)
+        Backend.rollback.recordBatch(all_records, description)
 
 def main():
     # Define the target directory
@@ -76,7 +76,7 @@ def main():
     print("------------------")
     time.sleep(10)
 
-    rollback.undoLast()
+    Backend.rollback.undoLast()
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
-from action import Action
-from file_info import FileInfo
+from Backend.action import Action
+from Backend.file_info import FileInfo
 from datetime import datetime
 
 @dataclass

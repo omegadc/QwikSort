@@ -1,5 +1,5 @@
 from datetime import datetime
-from file_info import *
+from Backend.file_info import *
 import operator
 
 # TODO: Remove these imports below once done debugging, implement pytests
