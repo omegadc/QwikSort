@@ -2,10 +2,11 @@ import os
 from Backend.file_info import FileInfo
 
 class FolderInfo:
-    def __init__(self, name, contents, isTarget, ruleset=None):
+    def __init__(self, name, contents, isTarget, path, ruleset=None):
         self.name = name
         self.contents = contents
         self.isTarget = isTarget
+        self.path = path
         self.ruleset = ruleset
     
     # Function to crete a FolderInfo object from a given path
@@ -26,7 +27,7 @@ class FolderInfo:
             elif entry.is_file():
                 contents.append(FileInfo.fromPath(entry.path))
         
-        return cls(folderName, contents, isTarget, ruleset=folderRuleset)
+        return cls(folderName, contents, isTarget, folderPath, ruleset=folderRuleset)
     
     # Returns a tree structured string; useful for debugging
     def toTreeString(self, level=0):
