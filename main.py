@@ -13,20 +13,17 @@ from PySide6.QtCore import QDir, QModelIndex
 from Frontend.MainWindow import Ui_MainWindow
 from Frontend.ruleset import Ui_Dialog
 
-# Backend Functionality Imports (Assuming these modules are implemented)
-from Backend.action import *
-from Backend.sorting_job import *
-from Backend.sorting_rule import *
-from Backend.condition import *
-from Backend.ruleset import *
-from Backend.folder_info import *
-from Backend.file_info import *
-from Backend.rollback import *
+# Backend Functionality Imports
+from Backend.action import Action
+from Backend.sorting_job import runSortingJob
+from Backend.sorting_rule import SortingRule
+from Backend.condition import Condition
+from Backend.ruleset import Ruleset
+from Backend.folder_info import FolderInfo
+from Backend.file_info import FileInfo
+from Backend.rollback import undoLast, saveRestorePoint, rollbackToRestorePoint
+from Backend.app_state import AppState
 
-# Backend variables
-rulesets = []
-targetDirectory = None
-selectedFolder = None
 
 def create_item_widget(text, control_widget):
     """
@@ -46,8 +43,9 @@ class RulesetWindow(QDialog):
     """
     The ruleset dialog window that shows various sorting rules.
     """
-    def __init__(self):
+    def __init__(self, state):
         super().__init__()
+        self.state = state
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.setup_ruleset_widget()
@@ -91,7 +89,7 @@ class RulesetWindow(QDialog):
         self.ui.listView.setItemWidget(modified_item, 0, widget_modified)
         self.ui.listView.setItemWidget(created_item, 0, widget_created)
 
-        # Name and Other rules (placeholders for future expansion)
+        # Name and Other rules
         name_item = QTreeWidgetItem(["Name"])
         self.ui.listView.addTopLevelItem(name_item)
         other_item = QTreeWidgetItem(["Other"])
@@ -104,15 +102,13 @@ class MainWindow(QMainWindow):
     """
     The main application window that displays the file system and hooks up UI events.
     """
-    def __init__(self):
+    def __init__(self, state):
         super().__init__()
+        self.state = state
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setup_file_system_model()
         self.setup_connections()
-
-        # Default backend hook for folder clicks (can be overridden by backend)
-        self.folder_click_callback = None
 
     def setup_file_system_model(self):
         """
@@ -120,6 +116,7 @@ class MainWindow(QMainWindow):
         """
         self.model = QFileSystemModel()
         self.home_path = QDir.homePath()
+        self.state.target_directory = self.home_path
         self.model.setRootPath(self.home_path)
         self.ui.listFiles.setModel(self.model)
         self.ui.listFiles.setRootIndex(self.model.index(self.home_path))
@@ -142,6 +139,9 @@ class MainWindow(QMainWindow):
         # Menu actions
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionOpen_Rulesets.triggered.connect(self.open_ruleset)
+
+        # UI actions
+        self.ui.pushButton_5.clicked.connect(self.sort)
 
     def change_directory(self):
         """
@@ -167,6 +167,8 @@ class MainWindow(QMainWindow):
         """
         os.chdir(path)
         self.ui.label.setText(f"Target Directory: {path}")
+        self.state.target_directory = path
+        print(f"Target Directory: {path}")
         self.ui.leTargetDirectory.setText(path)
         self.model.setRootPath(path)
         self.ui.listFiles.setRootIndex(self.model.index(path))
@@ -211,30 +213,40 @@ class MainWindow(QMainWindow):
         This method can be overridden by backend code to perform custom actions.
         For now, it simply prints the clicked folder path.
         """
-        if callable(self.folder_click_callback):
-            self.folder_click_callback(path)
-        else:
-            print(f"Folder clicked: {path}")
+        
+        self.state.selected_folder = path
+        print(f"Folder clicked: {self.state.selected_folder}")
 
-    def set_folder_click_callback(self, callback):
-        """
-        Allows backend code to register a callback to be executed when a folder is clicked.
-        """
-        self.folder_click_callback = callback
+        # TODO: Remove the following debug ruleset creation
 
-    def get_clicked_folder_path(self):
+        folder = FolderInfo.fromPath(path, False) # Create a FolderInfo object of the selected folder
+        photosAction = Action("move", self.state.selected_folder) # Move files to selected folder
+
+        # Create a test ruleset
+        photosRuleset = Ruleset.fromRules(folder, [ 
+            SortingRule(Condition("extension", "==", ".png"), photosAction),
+            SortingRule(Condition("extension", "==", ".jpg"), photosAction),
+            SortingRule(Condition("name", "contains", "photo"), photosAction)
+        ])
+
+        self.state.rulesets[path] = photosRuleset
+
+        print(f"Created test ruleset: {repr(self.state.rulesets[path])}")
+    
+    def sort(self):
         """
-        Returns the path of the currently selected folder in the file view.
+        Hook for sorting files when clicking the Sort button (pushButton_5)
         """
-        index = self.ui.listFiles.currentIndex()
-        if index.isValid():
-            return self.model.filePath(index)
-        return None
+        target = FolderInfo.fromPath(self.state.target_directory, True) # Create a FolderInfo object for target
+        runSortingJob(self.state.rulesets, target, description="User-initiated sort")
+        print(f"Ran sorting job successfully on directory {self.state.target_directory}")
 
 
 def main():
     app = QApplication(sys.argv)
-    window = MainWindow()
+    app_state = AppState()
+
+    window = MainWindow(app_state)
     window.show()
     sys.exit(app.exec())
 
