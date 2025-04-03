@@ -21,7 +21,7 @@ class FolderInfo:
         obj = os.scandir(folderPath)
 
         for entry in obj:
-            if entry.is_dir():
+            if entry.is_dir(follow_symlinks=False):
                 contents.append(cls.fromPath(entry.path, False)) # A subfolder from construction should never be a target directory
             elif entry.is_file():
                 contents.append(FileInfo.fromPath(entry.path))
