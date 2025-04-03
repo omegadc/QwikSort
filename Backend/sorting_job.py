@@ -36,7 +36,7 @@ def runSortingJob(rulesets, target_folder, log_dir="logs", description="Sorting 
 
     try:
         for file in all_files:
-            for ruleset in rulesets:
+            for ruleset in rulesets.values:
                 records = ruleset.runRules(file, logger=log_file)
                 all_records.extend(records)
                 if records:
