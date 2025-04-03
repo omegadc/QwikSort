@@ -1,6 +1,5 @@
 import os
 from Backend.file_info import FileInfo
-from Backend.ruleset import Ruleset
 
 class FolderInfo:
     def __init__(self, name, contents, isTarget, ruleset=None):
