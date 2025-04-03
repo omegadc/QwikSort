@@ -11,12 +11,15 @@ from Backend.condition import Condition
 from Backend.action import Action
 
 def createLogFile(log_dir="logs"):
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    log_path = os.path.join(base_dir, log_dir)
+
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    log_path = os.path.join(log_dir, f"sorting_log_{timestamp}.txt")
-    return open(log_path, "a")  # Caller is responsible for closing log file
+    full_log_path = os.path.join(log_path, f"sorting_log_{timestamp}.txt")
+    return open(full_log_path, "a") # Caller is responsible for closing log file
 
 # Helper function to flatten a folder structure
 def getAllFiles(folder):
@@ -36,7 +39,7 @@ def runSortingJob(rulesets, target_folder, log_dir="logs", description="Sorting 
 
     try:
         for file in all_files:
-            for ruleset in rulesets.values:
+            for _, ruleset in rulesets.items():
                 records = ruleset.runRules(file, logger=log_file)
                 all_records.extend(records)
                 if records:
