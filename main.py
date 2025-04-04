@@ -152,6 +152,9 @@ class MainWindow(QMainWindow):
 
         # Menu actions
         self.ui.actionExit.triggered.connect(self.close)
+        self.ui.actionExit.setShortcut('Ctrl+Q')
+        self.ui.actionExit.setStatusTip('Exit application')
+        
         self.ui.actionOpen_Rulesets.triggered.connect(self.open_ruleset)
 
         # UI actions
