@@ -2,28 +2,37 @@ import os
 from Backend.file_info import FileInfo
 
 class FolderInfo:
-    def __init__(self, name, contents, isTarget):
+    def __init__(self, name, contents, isTarget, path, ruleset=None):
         self.name = name
         self.contents = contents
         self.isTarget = isTarget
-    
-    # Function to crete a FolderInfo object from a given path
+        self.path = path
+        self.ruleset = ruleset
+
+    # Function to create a FolderInfo object from a given path
     @classmethod
-    def fromPath(cls, folderPath, isTarget):
+    def fromPath(cls, folderPath, isTarget, ruleset=None):
         folderName = os.path.basename(folderPath)
+        folderRuleset = ruleset if ruleset is not None else None
         contents = []
 
-        obj = os.scandir(folderPath)
+        try:
+            with os.scandir(folderPath) as entries:
+                for entry in entries:
+                    try:
+                        if entry.is_dir(follow_symlinks=False):
+                            contents.append(cls.fromPath(entry.path, False))  # Subfolders aren't target directories
+                        elif entry.is_file():
+                            contents.append(FileInfo.fromPath(entry.path))
+                    except PermissionError as e:
+                        print(f"PermissionError: Skipping {entry.path} - {e}")
+        except PermissionError as e:
+            print(f"PermissionError: Cannot access {folderPath} - {e}")
+            return cls(folderName, [], isTarget, folderPath, ruleset=folderRuleset)
 
-        for entry in obj:
-            if entry.is_dir():
-                contents.append(cls.fromPath(entry.path, False)) # A subfolder from construction should never be a target directory
-            elif entry.is_file():
-                contents.append(FileInfo.fromPath(entry.path))
-        
-        return cls(folderName, contents, isTarget)
-    
-    # Returns a tree structured string; useful for debugging
+        return cls(folderName, contents, isTarget, folderPath, ruleset=folderRuleset)
+
+    # Returns a tree-structured string; useful for debugging
     def toTreeString(self, level=0):
         indent = '  ' * level
         tree = f"{indent}- {self.name}/ (target={self.isTarget})\n"
@@ -48,7 +57,7 @@ def main():
     testFolderInfo = FolderInfo.fromPath(test_folder, True)
 
     print(testFolderInfo.toTreeString())
-            
+
 # Only run main when directly testing
 if __name__ == "__main__":
     main()
