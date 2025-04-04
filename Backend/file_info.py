@@ -70,8 +70,8 @@ def main():
     print(f"Extension: {file_info.extension}")
     print(f"Path: {file_info.path}")
     print(f"Size: {file_info.size} bytes")
-    print(f"Date Created: {file_info.dateCreated.strftime("%Y-%m-%d %H:%M:%S")}")
-    print(f"Date Modified: {file_info.dateModified.strftime("%Y-%m-%d %H:%M:%S")}")
+    print(f"Date Created: {file_info.dateCreated.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Date Modified: {file_info.dateModified.strftime('%Y-%m-%d %H:%M:%S')}")
 
 # Only run main when directly testing
 if __name__ == "__main__":

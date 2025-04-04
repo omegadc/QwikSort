@@ -122,6 +122,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.setup_file_system_model()
         self.setup_connections()
+        self.filepath = QDir(self.model.filePath(self.ui.listFiles.rootIndex()))
 
     def setup_file_system_model(self):
         """
@@ -155,7 +156,9 @@ class MainWindow(QMainWindow):
 
         # UI actions
         self.ui.pushButton_5.clicked.connect(self.sort)
-
+        self.ui.pushButton_2.clicked.connect(self.backButtonDir) # BackButton Folder
+        self.ui.pushButton_3.clicked.connect(self.forwardButtonDir) # Forward Button
+        
         # Clicked Item reveals forwardBttn directory when clicked
         self.ui.listFiles.clicked.connect(self.oneItemClicked)
 
@@ -164,11 +167,11 @@ class MainWindow(QMainWindow):
         self.set_dark_theme()
     
     def set_dark_theme(self):
-        app.setStyle(QStyleFactory.create("Fusion"))
+        self.setStyle(QStyleFactory.create("Fusion"))
         palette = QPalette()
         palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
         palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
-        app.setPalette(palette)
+        self.setPalette(palette)
 
     def oneItemClicked(self, index: QModelIndex):
         # self.filepath = self.model.filePath(index)
@@ -186,7 +189,7 @@ class MainWindow(QMainWindow):
             selected_path = self.filepath
             if QDir(selected_path).exists():
                 os.chdir(selected_path)
-                self.update_directory_view(selected_path)
+                self.set_directory(selected_path)
 
     def backButtonDir(self):
         path_index = self.ui.listFiles.rootIndex()
@@ -195,9 +198,15 @@ class MainWindow(QMainWindow):
         self.filepath = path
         if directory.cdUp():
             parent_dir = directory.absolutePath()
-            self.update_directory_view(parent_dir)
-        else:
-#             print("Already at the top-level Directory")
+            self.set_directory(parent_dir)
+        # else:
+        #        print("Already at the top-level Directory")
+    
+    def change_directory(self):
+        # Opens a dialog for directory selection and updates the file view.
+        if self.state.target_directory:
+            dir_path = QFileDialog.getExistingDirectory(self, "Select Directory", self.state.target_directory)
+            self.set_directory(dir_path)
 
     def change_home(self):
         """
@@ -208,6 +217,7 @@ class MainWindow(QMainWindow):
             self.set_directory(path)
         else:
             print(f"The directory '{path}' does not exist.")
+
 
     def set_directory(self, path):
         """
@@ -231,24 +241,22 @@ class MainWindow(QMainWindow):
         """
         Opens the ruleset dialog window.
         """
-        dialog = RulesetWindow()
+        dialog = RulesetWindow(self.state)
         dialog.exec()
 
     def on_list_view_single_click(self, index: QModelIndex):
-        """
-        Handles single-clicks in the file system view.
-        This will print the folder's path (or display its ruleset in the future) without navigating.
-        """
+        # Handles single-clicks in the file system view.
+        # This will print the folder's path (or display its ruleset in the future) without navigating.
+        
+        self.filepath = index
         if index.isValid():
             path = self.model.filePath(index)
             # Call the folder click hook for single-click events.
             self.folder_clicked(path)
 
     def on_list_view_double_click(self, index: QModelIndex):
-        """
-        Handles double-clicks in the file system view.
-        Double-clicking navigates into the folder and then calls the folder click hook.
-        """
+        # Handles double-clicks in the file system view.
+        # Double-clicking navigates into the folder and then calls the folder click hook.
         if index.isValid():
             path = self.model.filePath(index)
             if QDir(path).exists():
@@ -265,21 +273,21 @@ class MainWindow(QMainWindow):
         self.state.selected_folder = path
         print(f"Folder clicked: {self.state.selected_folder}")
 
-        # TODO: Remove the following debug ruleset creation
+        # # TODO: Remove the following debug ruleset creation
 
-        folder = FolderInfo.fromPath(path, False) # Create a FolderInfo object of the selected folder
-        photosAction = Action("move", self.state.selected_folder) # Move files to selected folder
+        # folder = FolderInfo.fromPath(path, False) # Create a FolderInfo object of the selected folder
+        # photosAction = Action("move", self.state.selected_folder) # Move files to selected folder
 
-        # Create a test ruleset
-        photosRuleset = Ruleset.fromRules(folder, [ 
-            SortingRule(Condition("extension", "==", ".png"), photosAction),
-            SortingRule(Condition("extension", "==", ".jpg"), photosAction),
-            SortingRule(Condition("name", "contains", "photo"), photosAction)
-        ])
+        # # Create a test ruleset
+        # photosRuleset = Ruleset.fromRules(folder, [ 
+        #     SortingRule(Condition("extension", "==", ".png"), photosAction),
+        #     SortingRule(Condition("extension", "==", ".jpg"), photosAction),
+        #     SortingRule(Condition("name", "contains", "photo"), photosAction)
+        # ])
 
-        self.state.rulesets[path] = photosRuleset
+        # self.state.rulesets[path] = photosRuleset
 
-        print(f"Created test ruleset: {repr(self.state.rulesets[path])}")
+        # print(f"Created test ruleset: {repr(self.state.rulesets[path])}")
     
     def sort(self):
         """
