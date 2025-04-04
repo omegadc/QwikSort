@@ -89,7 +89,7 @@ class RulesetWindow(QDialog):
         self.ui.listView.addTopLevelItem(name_item)
         self.regexInclude = QLineEdit(self)
         self.regexExclude = QLineEdit(self)
-        self.regexInclude.textChanged.connect(self.filter_files)
+        # self.regexInclude.textChanged.connect(self.filter_files)
         widget_include = create_item_widget("Include",self.regexInclude)
         widget_exclude = create_item_widget("Exclude",self.regexExclude)
         name_item1 = QTreeWidgetItem()
@@ -103,6 +103,7 @@ class RulesetWindow(QDialog):
         # Other 
         other_item = QTreeWidgetItem(["Other"])
         self.ui.listView.addTopLevelItem(other_item)
+
 
 
         self.ui.listView.expandAll()
