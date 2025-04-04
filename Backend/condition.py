@@ -47,6 +47,19 @@ class Condition:
 
         return Condition.operators[op](left, right)
     
+    # Function to return the class operation to a string
+    def operationToString(self):
+        operation_map = {
+            ">": "is greater than",
+            "<": "is less than",
+            ">=": "is greater or equal to",
+            "<=": "is less or equal to",
+            "==": "is equal to",
+            "!=": "is not equal to",
+            "contains": "contains"
+        }
+        return operation_map.get(self.operation, f"Unknown operation: {self.operation}")
+    
     # Function to compare value to file name
     def checkName(self, file):
         Condition.verify(file)
