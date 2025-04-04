@@ -1,15 +1,15 @@
+# Frontend UI Imports
 import sys
 import os
 from pathlib import Path
-
 from PySide6.QtWidgets import (
     QApplication, QWidget, QHBoxLayout, QMainWindow, QDialog,
     QFileSystemModel, QFileDialog, QLabel, QTreeWidgetItem,
-    QCheckBox, QDateTimeEdit
+    QLineEdit, QStyleFactory, QCheckBox, QTreeWidget,
+    QDateTimeEdit, QCalendarWidget, QListWidgetItem
 )
-from PySide6.QtCore import QDir, QModelIndex
-
-# Frontend UI Imports
+from PySide6.QtCore import QDir, QModelIndex, Qt, QCalendar
+from PySide6.QtGui import QPalette, QColor
 from Frontend.MainWindow import Ui_MainWindow
 from Frontend.ruleset import Ui_Dialog
 
@@ -37,7 +37,6 @@ def create_item_widget(text, control_widget):
     layout.addWidget(control_widget)
     layout.addStretch()
     return widget
-
 
 class RulesetWindow(QDialog):
     """
@@ -82,8 +81,8 @@ class RulesetWindow(QDialog):
         datetime_edit_created.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
         widget_modified = create_item_widget("Modified", datetime_edit_modified)
         widget_created = create_item_widget("Created", datetime_edit_created)
-        modified_item = QTreeWidgetItem(["Modified"])
-        created_item = QTreeWidgetItem(["Created"])
+        modified_item = QTreeWidgetItem()
+        created_item = QTreeWidgetItem()
         date_item.addChild(modified_item)
         date_item.addChild(created_item)
         self.ui.listView.setItemWidget(modified_item, 0, widget_modified)
@@ -92,11 +91,25 @@ class RulesetWindow(QDialog):
         # Name and Other rules
         name_item = QTreeWidgetItem(["Name"])
         self.ui.listView.addTopLevelItem(name_item)
+        self.regexInclude = QLineEdit(self)
+        self.regexExclude = QLineEdit(self)
+        # self.regexInclude.textChanged.connect(self.filter_files)
+        widget_include = create_item_widget("Include",self.regexInclude)
+        widget_exclude = create_item_widget("Exclude",self.regexExclude)
+        name_item1 = QTreeWidgetItem()
+        name_item2 = QTreeWidgetItem()
+        name_item.addChild(name_item1)
+        name_item.addChild(name_item2)
+        self.ui.listView.setItemWidget(name_item1, 0, widget_include)
+        self.ui.listView.setItemWidget(name_item2, 0, widget_exclude)
+
+        
+        # OTher 
         other_item = QTreeWidgetItem(["Other"])
         self.ui.listView.addTopLevelItem(other_item)
+        # Size Filter KB/MB/GB
 
         self.ui.listView.expandAll()
-
 
 class MainWindow(QMainWindow):
     """
@@ -143,13 +156,48 @@ class MainWindow(QMainWindow):
         # UI actions
         self.ui.pushButton_5.clicked.connect(self.sort)
 
-    def change_directory(self):
-        """
-        Opens a dialog for directory selection and updates the file view.
-        """
-        dir_path = QFileDialog.getExistingDirectory(self, "Select Directory", QDir.homePath())
-        if dir_path:
-            self.set_directory(dir_path)
+        # Clicked Item reveals forwardBttn directory when clicked
+        self.ui.listFiles.clicked.connect(self.oneItemClicked)
+
+        # Light/Dark Mode
+        self.is_dark_mode = True
+        self.set_dark_theme()
+    
+    def set_dark_theme(self):
+        app.setStyle(QStyleFactory.create("Fusion"))
+        palette = QPalette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+        app.setPalette(palette)
+
+    def oneItemClicked(self, index: QModelIndex):
+        # self.filepath = self.model.filePath(index)
+        if index.isValid():
+            selected_path = self.model.filePath(index)
+            if QDir(selected_path).exists():
+                self.filepath = selected_path
+
+
+    def forwardButtonDir(self, index: QModelIndex):
+        if self.filepath == None:
+            dialog = ErrorMessage()
+            dialog.exec()
+        else:
+            selected_path = self.filepath
+            if QDir(selected_path).exists():
+                os.chdir(selected_path)
+                self.update_directory_view(selected_path)
+
+    def backButtonDir(self):
+        path_index = self.ui.listFiles.rootIndex()
+        path = self.model.filePath(path_index)
+        directory = QDir(path)
+        self.filepath = path
+        if directory.cdUp():
+            parent_dir = directory.absolutePath()
+            self.update_directory_view(parent_dir)
+        else:
+#             print("Already at the top-level Directory")
 
     def change_home(self):
         """
