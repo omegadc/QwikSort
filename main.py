@@ -48,6 +48,9 @@ class RulesetWindow(QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.setup_ruleset_widget()
+        self.ui.listView.setHeaderHidden(True)
+        self.ui.buttonBox.rejected.connect(self.close)
+        self.ui.buttonBox.accepted.connect(self.close)
 
     def setup_ruleset_widget(self):
         """
@@ -104,7 +107,7 @@ class RulesetWindow(QDialog):
         self.ui.listView.setItemWidget(name_item2, 0, widget_exclude)
 
         
-        # OTher 
+        # Other  
         other_item = QTreeWidgetItem(["Other"])
         self.ui.listView.addTopLevelItem(other_item)
         # Size Filter KB/MB/GB
@@ -123,6 +126,8 @@ class MainWindow(QMainWindow):
         self.setup_file_system_model()
         self.setup_connections()
         self.filepath = QDir(self.model.filePath(self.ui.listFiles.rootIndex()))
+        self.ruleset = None
+        self.ui.listRules.setHeaderHidden(True)
 
     def setup_file_system_model(self):
         """
@@ -161,6 +166,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_5.clicked.connect(self.sort)
         self.ui.pushButton_2.clicked.connect(self.backButtonDir) # BackButton Folder
         self.ui.pushButton_3.clicked.connect(self.forwardButtonDir) # Forward Button
+        self.ui.btnPlus.clicked.connect(self.open_ruleset)
         
         # Clicked Item reveals forwardBttn directory when clicked
         self.ui.listFiles.clicked.connect(self.oneItemClicked)
@@ -265,6 +271,25 @@ class MainWindow(QMainWindow):
             if QDir(path).exists():
                 self.set_directory(path)
                 self.folder_clicked(path)
+    
+    def creatingRulesetWidget(self, value: Ruleset):
+        # self.ruleset
+        counter = 0
+        self.ui.listRules.clear()
+        for rule in value.sortingRules:
+            # self.ui.listRules
+            counter += 1
+            rule_item = QTreeWidgetItem([f"Rule {counter}"])
+            self.ui.listRules.addTopLevelItem(rule_item)
+            blank = QWidget()
+            widget = create_item_widget(str(rule), blank)
+            rule_child = QTreeWidgetItem()
+            rule_item.addChild(rule_child)
+            self.ui.listRules.setItemWidget(rule_child, 0, widget)
+            print(rule)
+            print(rule.condition)
+        self.ui.listRules.expandAll()
+
 
     def folder_clicked(self, path):
         """
@@ -276,10 +301,19 @@ class MainWindow(QMainWindow):
         print(f"Folder clicked: {self.state.selected_folder}")
         
         value = self.state.rulesets.get(self.state.selected_folder)
+        self.ruleset = self.state.rulesets.get(self.state.selected_folder)
+        # value = Class [Backend.ruleset.Ruleset]
+        # Rules in value.sortingRules = Class [Backend.sorting_rule.SortingRule]
+        # SortingRule's properties:
+        #     self.condition = condition
+        #     self.action = action
         if value is not None:
-            print(value)
+            print(value, type(value))
+            self.creatingRulesetWidget(value)
         else:
             print(f"Could not find value for key {self.state.selected_folder}")
+            self.ui.listRules.clear()
+
 
     def sort(self):
         """
@@ -304,9 +338,6 @@ def main():
         SortingRule(Condition("extension", "==", ".jpg"), photosAction),
         SortingRule(Condition("name", "contains", "photo"), photosAction)
     ])
-
-    # for folder, ruleset in app_state.rulesets.items():
-    #     print(folder, ruleset)
 
     window = MainWindow(app_state)
     window.show()
