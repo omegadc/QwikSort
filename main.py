@@ -269,29 +269,18 @@ class MainWindow(QMainWindow):
     def folder_clicked(self, path):
         """
         Default hook for when a folder is clicked (single or double).
-        This method can be overridden by backend code to perform custom actions.
-        For now, it simply prints the clicked folder path.
+        This method can (and is) overridden by backend code to perform custom actions.
         """
-        
-        self.state.selected_folder = path
+
+        self.state.selected_folder = os.path.normpath(path)
         print(f"Folder clicked: {self.state.selected_folder}")
+        
+        value = self.state.rulesets.get(self.state.selected_folder)
+        if value is not None:
+            print(value)
+        else:
+            print(f"Could not find value for key {self.state.selected_folder}")
 
-        # # TODO: Remove the following debug ruleset creation
-
-        # folder = FolderInfo.fromPath(path, False) # Create a FolderInfo object of the selected folder
-        # photosAction = Action("move", self.state.selected_folder) # Move files to selected folder
-
-        # # Create a test ruleset
-        # photosRuleset = Ruleset.fromRules(folder, [ 
-        #     SortingRule(Condition("extension", "==", ".png"), photosAction),
-        #     SortingRule(Condition("extension", "==", ".jpg"), photosAction),
-        #     SortingRule(Condition("name", "contains", "photo"), photosAction)
-        # ])
-
-        # self.state.rulesets[path] = photosRuleset
-
-        # print(f"Created test ruleset: {repr(self.state.rulesets[path])}")
-    
     def sort(self):
         """
         Hook for sorting files when clicking the Sort button (pushButton_5)
@@ -304,6 +293,20 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     app_state = AppState()
+
+    # Debug test
+    documents_path = os.path.join(os.path.expanduser("~"), "Documents")
+    folder = FolderInfo.fromPath(documents_path, False)
+
+    photosAction = Action("move", documents_path)
+    app_state.rulesets[documents_path] = Ruleset.fromRules(folder, [ 
+        SortingRule(Condition("extension", "==", ".png"), photosAction),
+        SortingRule(Condition("extension", "==", ".jpg"), photosAction),
+        SortingRule(Condition("name", "contains", "photo"), photosAction)
+    ])
+
+    # for folder, ruleset in app_state.rulesets.items():
+    #     print(folder, ruleset)
 
     window = MainWindow(app_state)
     window.show()
