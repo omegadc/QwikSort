@@ -1,75 +1,65 @@
 import sys
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout,
-    QTreeWidget, QTreeWidgetItem, QHBoxLayout, QLabel, QCheckBox, QRadioButton, QDateTimeEdit
+    QApplication, QWidget, QVBoxLayout,
+    QTreeView, QLineEdit, QMessageBox
 )
+from PySide6.QtCore import QDir
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFileSystemModel
 
-def create_item_widget(text, control_widget):
-    """
-    Create a composite widget with a label and a control widget arranged horizontally.
-    """
-    widget = QWidget()
-    layout = QHBoxLayout(widget)
-    layout.setContentsMargins(0, 0, 0, 0)
-    label = QLabel(text)
-    layout.addWidget(label)
-    layout.addWidget(control_widget)
-    # Optionally add a stretch if you want the widget aligned to the left
-    layout.addStretch()
-    return widget
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("One-Column Tree with Embedded Widgets")
+class NewFolderWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-        # Create a central widget and a vertical layout
-        central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-        self.setCentralWidget(central_widget)
+        # 1) set up your model & view
+        self.model = QFileSystemModel(self)
+        self.model.setRootPath(QDir.homePath())  # or wherever you like
 
-        # Create QTreeWidget with a single column
-        self.tree_widget = QTreeWidget()
-        self.tree_widget.setHeaderLabel("Options")
-        layout.addWidget(self.tree_widget)
+        self.tree = QTreeView(self)
+        self.tree.setModel(self.model)
+        self.tree.setRootIndex(self.model.index(QDir.homePath()))
 
-        self.setup_tree_widget()
+        # 2) line edit for new-folder name
+        self.line = QLineEdit(self)
+        self.line.setPlaceholderText("Type new folder name and press Enter")
 
-    def setup_tree_widget(self):
-        # Create a top-level "Settings" item
-        settings_item = QTreeWidgetItem(["Settings"])
-        self.tree_widget.addTopLevelItem(settings_item)
+        # 3) layout
+        lay = QVBoxLayout(self)
+        lay.addWidget(self.tree)
+        lay.addWidget(self.line)
+        self.setLayout(lay)
 
-        # --- Checkbox Item ---
-        checkbox = QCheckBox("Activate")
-        checkbox_widget = create_item_widget("Enable Feature", checkbox)
-        checkbox_item = QTreeWidgetItem()  # Create an empty item
-        settings_item.addChild(checkbox_item)
-        self.tree_widget.setItemWidget(checkbox_item, 0, checkbox_widget)
+        # 4) connect Enter key on the line edit
+        self.line.returnPressed.connect(self.create_folder)
 
-        # --- Radio Button Item ---
-        radio = QRadioButton("Option 1")
-        radio_widget = create_item_widget("Select Option", radio)
-        radio_item = QTreeWidgetItem()
-        settings_item.addChild(radio_item)
-        self.tree_widget.setItemWidget(radio_item, 0, radio_widget)
+    def create_folder(self):
+        name = self.line.text().strip()
+        if not name:
+            return  # ignore empty
 
-        # --- Date/Time Edit Item ---
-        datetime_edit = QDateTimeEdit()
-        datetime_edit.setCalendarPopup(True)
-        datetime_edit.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
-        datetime_widget = create_item_widget("Pick Date/Time", datetime_edit)
-        datetime_item = QTreeWidgetItem()
-        settings_item.addChild(datetime_item)
-        self.tree_widget.setItemWidget(datetime_item, 0, datetime_widget)
+        # figure out parent directory index:
+        idx = self.tree.currentIndex()
+        if not idx.isValid():
+            idx = self.tree.rootIndex()
 
-        # Expand all items so the user can see the content
-        self.tree_widget.expandAll()
+        # attempt to create it via the model:
+        new_idx = self.model.mkdir(idx, name)
+
+        if not new_idx.isValid():
+            QMessageBox.warning(self, "Could not create folder",
+                                f"Failed to create “{name}” in\n{self.model.filePath(idx)}")
+        else:
+            # optionally select & scroll to the new folder:
+            self.tree.setCurrentIndex(new_idx)
+            self.tree.scrollTo(new_idx, QTreeView.PositionAtCenter)
+            self.line.clear()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.resize(400, 300)
-    window.show()
+    w = NewFolderWidget()
+    w.resize(600, 400)
+    w.show()
     sys.exit(app.exec())

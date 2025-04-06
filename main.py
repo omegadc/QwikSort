@@ -6,13 +6,14 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QHBoxLayout, QMainWindow, QDialog,
     QFileSystemModel, QFileDialog, QLabel, QTreeWidgetItem,
     QLineEdit, QStyleFactory, QCheckBox, QTreeWidget,
-    QDateTimeEdit, QCalendarWidget, QListWidgetItem,
-    QButtonGroup, QRadioButton
+    QDateTimeEdit, QCalendarWidget, QListWidget, QListWidgetItem,
+    QButtonGroup, QRadioButton, QMessageBox
 )
 from PySide6.QtCore import QDir, QModelIndex, Qt, QCalendar
 from PySide6.QtGui import QPalette, QColor
 from Frontend.MainWindow import Ui_MainWindow
 from Frontend.ruleset import Ui_Dialog
+from Frontend.newFolder import Ui_Form
 
 # Backend Functionality Imports
 from Backend.action import Action
@@ -38,6 +39,44 @@ def create_item_widget(text, control_widget):
     layout.addWidget(control_widget)
     layout.addStretch()
     return widget
+
+class NewFolderWindow(QDialog):
+    def __init__(self, state):
+        super().__init__()
+        self.ui = Ui_Form()
+        self.state = state
+        # self.ui.setupUi()
+        self.ui.setupUi(self)
+        self.setup_file_system_model()
+        # self.ui.buttonEnter.clicked
+        self.ui.lineEditFolderName.returnPressed.connect(self.createNewFolder)
+        self.ui.buttonEnter.clicked.connect(self.createNewFolder)
+    
+    def createNewFolder(self):
+        text = self.ui.lineEditFolderName.text().strip()
+        if not text:
+            return
+
+        index = self.model.mkdir(self.model.index(self.state.target_directory), text)
+        if not index.isValid():
+            QMessageBox.warning(self, "Could not create folder",
+                                f"Failed to create “{text}” in\n{self.state.target_directory}") # self.model.filePath(index)
+        else:
+            # MainWindow(self, self.state).ui.listFiles.currentIndex(index)
+            # MainWindow(self, self.state).ui.listFiles.scrollTo(index)
+            self.ui.lineEditFolderName.clear()
+            self.close()
+        
+        
+
+
+    def setup_file_system_model(self):
+        """
+        Sets up the file system model and initializes the target directory.
+        """
+        self.model = QFileSystemModel()
+        self.home_path = self.state.target_directory
+        self.model.setRootPath(self.home_path)
 
 class RulesetWindow(QDialog):
     """
@@ -164,6 +203,8 @@ class MainWindow(QMainWindow):
         self.ui.actionOpen_Folder.triggered.connect(self.change_directory)
         self.ui.pushbtn_Dir.clicked.connect(self.change_directory)
         self.ui.leTargetDirectory.returnPressed.connect(self.change_home)
+        self.ui.actionCreate_New_Folder.triggered.connect(self.openNewFolder)
+        self.ui.actionDelete_Folder.triggered.connect(self.deleteFolder)
         
         # Connect both single-click and double-click signals
         self.ui.listFiles.clicked.connect(self.on_list_view_single_click)
@@ -173,6 +214,12 @@ class MainWindow(QMainWindow):
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionExit.setShortcut('Ctrl+Q')
         self.ui.actionExit.setStatusTip('Exit application')
+        self.ui.actionOpen_Folder.setShortcut('Ctrl+O')
+        self.ui.actionOpen_Folder.setStatusTip('Open Folder')
+        self.ui.actionCreate_New_Folder.setShortcut('Ctrl+N')
+        self.ui.actionCreate_New_Folder.setStatusTip('New Folder')
+        self.ui.actionDelete_Folder.setShortcut('Ctrl+X')
+        self.ui.actionDelete_Folder.setStatusTip('Remove Folder')
         
         self.ui.actionOpen_Rulesets.triggered.connect(self.open_ruleset)
 
@@ -203,11 +250,19 @@ class MainWindow(QMainWindow):
             if QDir(selected_path).exists():
                 self.filepath = selected_path
 
-
-    def forwardButtonDir(self, index: QModelIndex):
+    def deleteFolder(self):
         if self.filepath == None:
-            dialog = ErrorMessage()
-            dialog.exec()
+            QMessageBox.warning(self,
+                                "File does not exist")
+        else:
+            selected_path = self.filepath
+            if QDir(selected_path).exists():
+                os.rmdir(selected_path)
+
+    def forwardButtonDir(self):
+        if self.filepath == None:
+            QMessageBox.warning(self, "Could not go into folder",
+                                "Folder does not exist")
         else:
             selected_path = self.filepath
             if QDir(selected_path).exists():
@@ -259,6 +314,13 @@ class MainWindow(QMainWindow):
         Returns the target directory from the input field.
         """
         return self.ui.leTargetDirectory.text()
+    
+    def openNewFolder(self):
+        """
+        Opens the ruleset dialog window.
+        """
+        dialog = NewFolderWindow(self.state)
+        dialog.exec()
 
     def open_ruleset(self):
         """
