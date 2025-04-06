@@ -14,7 +14,8 @@ class Condition:
         "<=": operator.le,
         "==": operator.eq, 
         "!=": operator.ne,
-        "contains": lambda a, b: b in a
+        "includes": lambda a, b: b in a,
+        "excludes": lambda a, b: b not in a
     }
 
     def __init__(self, type, operation, value):
@@ -56,7 +57,8 @@ class Condition:
             "<=": "is less or equal to",
             "==": "is equal to",
             "!=": "is not equal to",
-            "contains": "contains"
+            "includes": "contains",
+            "excludes": "does not contain"
         }
         return operation_map.get(self.operation, f"Unknown operation: {self.operation}")
     
