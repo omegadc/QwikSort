@@ -143,8 +143,8 @@ def main():
     # Create Condition objects to check several attributes
     conditions = [
         Condition("extension", "==", ".txt"),
-        Condition("extension", "contains", "txt"),
-        Condition("name", "contains", "test"),
+        Condition("extension", "includes", "txt"),
+        Condition("name", "includes", "test"),
         Condition("name", "==", "test_file"),
         Condition("size", ">=", 20),
         Condition("size", ">", 20),

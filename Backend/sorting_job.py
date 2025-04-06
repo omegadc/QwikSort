@@ -61,13 +61,13 @@ def main():
     photosRuleset = Ruleset.fromRules(target, [ 
         SortingRule(Condition("extension", "==", ".png"), photosAction),
         SortingRule(Condition("extension", "==", ".jpg"), photosAction),
-        SortingRule(Condition("name", "contains", "photo"), photosAction)
+        SortingRule(Condition("name", "includes", "photo"), photosAction)
     ])
 
     videosAction = Action("move", os.path.join(target_directory, "Videos"))
     videosRuleset = Ruleset.fromRules(target, [ 
         SortingRule(Condition("extension", "==", ".mp4"), videosAction),
-        SortingRule(Condition("name", "contains", "video"), videosAction)
+        SortingRule(Condition("name", "includes", "video"), videosAction)
     ])
 
     rulesets = [photosRuleset, videosRuleset]
