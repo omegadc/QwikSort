@@ -6,7 +6,8 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QHBoxLayout, QMainWindow, QDialog,
     QFileSystemModel, QFileDialog, QLabel, QTreeWidgetItem,
     QLineEdit, QStyleFactory, QCheckBox, QTreeWidget,
-    QDateTimeEdit, QCalendarWidget, QListWidgetItem
+    QDateTimeEdit, QCalendarWidget, QListWidgetItem,
+    QButtonGroup, QRadioButton
 )
 from PySide6.QtCore import QDir, QModelIndex, Qt, QCalendar
 from PySide6.QtGui import QPalette, QColor
@@ -47,10 +48,23 @@ class RulesetWindow(QDialog):
         self.state = state
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
+        # Radio Buttons
+        self.button_group = QButtonGroup(self)
         self.setup_ruleset_widget()
         self.ui.listView.setHeaderHidden(True)
         self.ui.buttonBox.rejected.connect(self.close)
         self.ui.buttonBox.accepted.connect(self.close)
+        
+
+        # Track Selected Text per Option Set
+        self.selected_values = {
+            "File": None
+        }
+        self.file_options = {
+            "File": ["png", "jpg", "pdf", "txt"]
+        }
+
+        self.file_option = 0
 
     def setup_ruleset_widget(self):
         """
@@ -67,11 +81,11 @@ class RulesetWindow(QDialog):
         file_item = QTreeWidgetItem(["File"])
         self.ui.listView.addTopLevelItem(file_item)
         for ext in data_ruleset["File"]:
-            checkbox = QCheckBox()
-            widget = create_item_widget(ext, checkbox)
-            checkbox_item = QTreeWidgetItem()
+            rb = QRadioButton(ext)
+            self.button_group.addButton(rb)
+            checkbox_item = QTreeWidgetItem([f"{ext}"])
             file_item.addChild(checkbox_item)
-            self.ui.listView.setItemWidget(checkbox_item, 0, widget)
+            self.ui.listView.setItemWidget(checkbox_item, 0, rb)
 
         # Date rules with QDateTimeEdits
         date_item = QTreeWidgetItem(["Date"])

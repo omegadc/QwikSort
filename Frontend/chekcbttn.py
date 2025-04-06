@@ -1,80 +1,75 @@
-import sys
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout,
-    QTreeView, QTreeWidget, QTreeWidgetItem
+    QApplication, QWidget, QVBoxLayout,
+    QPushButton, QRadioButton, QButtonGroup, QLabel
 )
-from PySide6.QtGui import QStandardItemModel, QStandardItem
+import sys
 
-class MainWindow(QMainWindow):
+class RadioDemo(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("QTreeView & QTreeWidget Demo")
-        central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-        self.setCentralWidget(central_widget)
+        self.setWindowTitle("Dynamic Radio Buttons")
+        self.setGeometry(100, 100, 300, 200)
 
-        # --- QTreeView Section (Model/View Approach) ---
-        self.tree_view = QTreeView()
-        self.setup_tree_view()
-        layout.addWidget(self.tree_view)
+        # Main layout
+        self.layout = QVBoxLayout()
 
-        # --- QTreeWidget Section (Widget-Based Approach) ---
-        self.tree_widget = QTreeWidget()
-        self.tree_widget.setHeaderLabels(["Category"])
-        self.setup_tree_widget()
-        layout.addWidget(self.tree_widget)
+        # Button to switch options
+        self.switch_button = QPushButton("Change Options")
+        self.switch_button.clicked.connect(self.switch_radio_buttons)
 
-    def setup_tree_view(self):
-        """ Set up a QTreeView with QStandardItemModel to display hierarchical data. """
-        model = QStandardItemModel()
-        model.setHorizontalHeaderLabels(["Name","Type"])
-        root_item = model.invisibleRootItem()
+        # Submit button
+        self.submit_button = QPushButton("Submit")
+        self.submit_button.clicked.connect(self.print_selected_option)
 
-        # Create a parent node "Settings"
-        settings_item = QStandardItem("Settings")
-        settings_item.setEditable(False)
-        root_item.appendRow(settings_item)
+        # Label to display selection
+        self.result_label = QLabel("Selected: None")
 
-        # Add a "Network" branch with children
-        network_item = QStandardItem("Network")
-        network_item.setEditable(False)
-        settings_item.appendRow(network_item)
-        network_item.appendRow(QStandardItem("Wi-Fi"))
-        network_item.appendRow(QStandardItem("Ethernet"))
+        # Radio button group
+        self.button_group = QButtonGroup(self)
+        self.radio_buttons = []  # To track and remove old buttons
 
-        # Add a "Display" branch with children
-        display_item = QStandardItem("Display")
-        display_item.setEditable(False)
-        settings_item.appendRow(display_item)
-        display_item.appendRow(QStandardItem("Brightness"))
-        display_item.appendRow(QStandardItem("Resolution"))
+        self.option_set = 0  # Toggle flag
+        self.load_radio_buttons(["Option A1", "Option A2", "Option A3"])
 
-        self.tree_view.setModel(model)
-        self.tree_view.expandAll()  # Expand all nodes
+        self.layout.addWidget(self.switch_button)
+        self.layout.addWidget(self.submit_button)
+        self.layout.addWidget(self.result_label)
+        self.setLayout(self.layout)
 
-    def setup_tree_widget(self):
-        """ Set up a QTreeWidget using QTreeWidgetItem to create a static, collapsible menu. """
-        # Top-level item "Settings"
-        settings_item = QTreeWidgetItem(["Settings"])
-        self.tree_widget.addTopLevelItem(settings_item)
+    def load_radio_buttons(self, options):
+        # Clear existing radio buttons
+        for rb in self.radio_buttons:
+            self.button_group.removeButton(rb)
+            self.layout.removeWidget(rb)
+            rb.deleteLater()
+        self.radio_buttons.clear()
 
-        # "Network" branch with children
-        network_item = QTreeWidgetItem(["Network"])
-        settings_item.addChild(network_item)
-        network_item.addChild(QTreeWidgetItem(["Wi-Fi"]))
-        network_item.addChild(QTreeWidgetItem(["Ethernet"]))
+        # Create new radio buttons
+        for option in options:
+            rb = QRadioButton(option)
+            self.button_group.addButton(rb)
+            self.layout.insertWidget(0, rb)  # Add above buttons
+            self.radio_buttons.append(rb)
 
-        # "Display" branch with children
-        display_item = QTreeWidgetItem(["Display"])
-        settings_item.addChild(display_item)
-        display_item.addChild(QTreeWidgetItem(["Brightness"]))
-        display_item.addChild(QTreeWidgetItem(["Resolution"]))
+    def switch_radio_buttons(self):
+        if self.option_set == 0:
+            self.load_radio_buttons(["Option B1", "Option B2"])
+            self.option_set = 1
+        else:
+            self.load_radio_buttons(["Option A1", "Option A2", "Option A3"])
+            self.option_set = 0
 
-        self.tree_widget.expandAll()  # Expand all nodes
+    def print_selected_option(self):
+        selected_button = self.button_group.checkedButton()
+        if selected_button:
+            self.result_label.setText(f"Selected: {selected_button.text()}")
+            print(f"Selected: {selected_button.text()}")
+        else:
+            self.result_label.setText("Selected: None")
+            print("Selected: None")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.resize(500, 500)
+    window = RadioDemo()
     window.show()
     sys.exit(app.exec())
