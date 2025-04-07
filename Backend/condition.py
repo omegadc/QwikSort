@@ -14,8 +14,8 @@ class Condition:
         "<=": operator.le,
         "==": operator.eq, 
         "!=": operator.ne,
-        "includes": lambda a, b: b in a,
-        "excludes": lambda a, b: b not in a
+        "includes": lambda a, b: b.lower() in a.lower(),
+        "excludes": lambda a, b: b.lower() not in a.lower()
     }
 
     def __init__(self, type, operation, value):
@@ -42,9 +42,11 @@ class Condition:
         if op not in Condition.operators:
             raise ValueError(f"Invalid operator {op}")
         
+        print(f"Evaluating: {left!r} {op} {right!r}")
+
         # Convert to strings
-        if isinstance(left, str) or isinstance(right, str):
-            left, right = str(left), str(right)
+        if isinstance(left, str) and isinstance(right, str):
+            left, right = left.lower(), right.lower()
 
         return Condition.operators[op](left, right)
     
