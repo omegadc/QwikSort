@@ -1,6 +1,7 @@
 # Frontend UI Imports
 import sys
 import os
+from datetime import datetime
 from pathlib import Path
 from PySide6.QtWidgets import (
     QApplication, QWidget, QHBoxLayout, QMainWindow, QDialog,
@@ -9,7 +10,7 @@ from PySide6.QtWidgets import (
     QDateTimeEdit, QCalendarWidget, QListWidget, QListWidgetItem,
     QButtonGroup, QRadioButton, QMessageBox
 )
-from PySide6.QtCore import QDir, QModelIndex, Qt, QCalendar
+from PySide6.QtCore import QDir, QModelIndex, QDateTime, Qt, QCalendar
 from PySide6.QtGui import QPalette, QColor
 from Frontend.MainWindow import Ui_MainWindow
 from Frontend.ruleset import Ui_Dialog
@@ -82,9 +83,10 @@ class RulesetWindow(QDialog):
     """
     The ruleset dialog window that shows various sorting rules.
     """
-    def __init__(self, state):
+    def __init__(self, state, main_window):
         super().__init__()
         self.state = state
+        self.main_window = main_window
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         # Radio Buttons
@@ -92,7 +94,7 @@ class RulesetWindow(QDialog):
         self.setup_ruleset_widget()
         self.ui.listView.setHeaderHidden(True)
         self.ui.buttonBox.rejected.connect(self.close)
-        self.ui.buttonBox.accepted.connect(self.close)
+        self.ui.buttonBox.accepted.connect(self.apply_rule_to_ruleset)
         
 
         # Track Selected Text per Option Set
@@ -135,6 +137,10 @@ class RulesetWindow(QDialog):
         datetime_edit_created = QDateTimeEdit()
         datetime_edit_created.setCalendarPopup(True)
         datetime_edit_created.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        # set the default date to "2001-01-01 00:00:00"
+        default_dt = QDateTime.fromString("2001-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss")
+        datetime_edit_modified.setDateTime(default_dt)
+        datetime_edit_created.setDateTime(default_dt)
         widget_modified = create_item_widget("Modified", datetime_edit_modified)
         widget_created = create_item_widget("Created", datetime_edit_created)
         modified_item = QTreeWidgetItem()
@@ -166,6 +172,71 @@ class RulesetWindow(QDialog):
         # Size Filter KB/MB/GB
 
         self.ui.listView.expandAll()
+
+    def get_new_rule(self):
+        """
+        Builds and returns a SortingRule object based on the current UI inputs.
+        Returns None if no valid rule is selected.
+        """
+        condition = None
+
+        # Check extension radio buttons
+        for btn in self.button_group.buttons():
+            if btn.isChecked():
+                ext = btn.text().lower()
+                condition = Condition("extension", "==", f".{ext}")
+                break
+
+        # Check date condition only if no extension rule selected
+        if condition is None:
+            mod_widget = self.ui.listView.itemWidget(self.ui.listView.topLevelItem(1).child(0), 0).layout().itemAt(1).widget()
+            created_widget = self.ui.listView.itemWidget(self.ui.listView.topLevelItem(1).child(1), 0).layout().itemAt(1).widget()
+
+            # The baseline "unset" value
+            default_dt = QDateTime.fromString("2001-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss")
+
+            mod_dt = mod_widget.dateTime()
+            created_dt = created_widget.dateTime()
+
+            # Only create a date condition if it's not the default
+            if mod_dt.toSecsSinceEpoch() != default_dt.toSecsSinceEpoch():
+                dt = mod_dt.toPython()
+                condition = Condition("dateModified", ">=", dt)
+            elif created_dt.toSecsSinceEpoch() != default_dt.toSecsSinceEpoch():
+                dt = created_dt.toPython()
+                condition = Condition("dateCreated", ">=", dt)
+
+        # Check name condition only if no extension or date rule selected
+        if condition is None:
+            name_includes = self.regexInclude.text().strip()
+            name_excludes = self.regexExclude.text().strip()
+            if name_includes:
+                condition = Condition("name", "includes", name_includes)
+            elif name_excludes:
+                condition = Condition("name", "excludes", name_excludes)
+
+        if condition is None:
+            return None  # No rule selected
+
+        # Default action - move to the folder where the rule is being created
+        action = Action("move", self.state.selected_folder)
+        return SortingRule(condition, action)
+    
+    def apply_rule_to_ruleset(self):
+        new_rule = self.get_new_rule()
+        if new_rule:
+            path = self.state.selected_folder
+            folder = FolderInfo.fromPath(path, False)
+
+            if path in self.state.rulesets:
+                self.state.rulesets[path].sortingRules.append(new_rule)
+            else:
+                self.state.rulesets[path] = Ruleset.fromRules(folder, [new_rule])
+            
+            # Update the rule viewer
+            self.main_window.createRulesetWidget(self.state.rulesets[path])
+        
+        self.accept() # close dialog
 
 class MainWindow(QMainWindow):
     """
@@ -221,7 +292,8 @@ class MainWindow(QMainWindow):
         self.ui.actionDelete_Folder.setShortcut('Ctrl+X')
         self.ui.actionDelete_Folder.setStatusTip('Remove Folder')
         
-        self.ui.actionOpen_Rulesets.triggered.connect(self.open_ruleset)
+        # Open rulesets button is not needed right now
+        # self.ui.actionOpen_Rulesets.triggered.connect(self.open_ruleset)
 
         # UI actions
         self.ui.pushButton_5.clicked.connect(self.sort)
@@ -319,14 +391,14 @@ class MainWindow(QMainWindow):
         """
         Opens the ruleset dialog window.
         """
-        dialog = NewFolderWindow(self.state)
+        dialog = NewFolderWindow(self.state, self)
         dialog.exec()
 
     def open_ruleset(self):
         """
         Opens the ruleset dialog window.
         """
-        dialog = RulesetWindow(self.state)
+        dialog = RulesetWindow(self.state, self)
         dialog.exec()
 
     def on_list_view_single_click(self, index: QModelIndex):
@@ -348,7 +420,7 @@ class MainWindow(QMainWindow):
                 self.set_directory(path)
                 self.folder_clicked(path)
     
-    def creatingRulesetWidget(self, value: Ruleset):
+    def createRulesetWidget(self, value: Ruleset):
         # self.ruleset
         counter = 0
         self.ui.listRules.clear()
@@ -385,7 +457,7 @@ class MainWindow(QMainWindow):
         #     self.action = action
         if value is not None:
             print(value, type(value))
-            self.creatingRulesetWidget(value)
+            self.createRulesetWidget(value)
         else:
             print(f"Could not find value for key {self.state.selected_folder}")
             self.ui.listRules.clear()
@@ -403,17 +475,6 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     app_state = AppState()
-
-    # Debug test
-    documents_path = os.path.join(os.path.expanduser("~"), "Documents")
-    folder = FolderInfo.fromPath(documents_path, False)
-
-    photosAction = Action("move", documents_path)
-    app_state.rulesets[documents_path] = Ruleset.fromRules(folder, [ 
-        SortingRule(Condition("extension", "==", ".png"), photosAction),
-        SortingRule(Condition("extension", "==", ".jpg"), photosAction),
-        SortingRule(Condition("name", "contains", "photo"), photosAction)
-    ])
 
     window = MainWindow(app_state)
     window.show()
