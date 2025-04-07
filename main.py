@@ -391,7 +391,7 @@ class MainWindow(QMainWindow):
         """
         Opens the ruleset dialog window.
         """
-        dialog = NewFolderWindow(self.state, self)
+        dialog = NewFolderWindow(self.state)
         dialog.exec()
 
     def open_ruleset(self):
