@@ -118,7 +118,8 @@ def rollbackToRestorePoint():
             return  # The file is already in its restore location.
 
         base_dir = os.path.dirname(restore_point.path)
-        current_location = find_file(snapshot_file.name, base_dir)
+        full_file_name = snapshot_file.name + snapshot_file.extension
+        current_location = find_file(full_file_name, base_dir)
 
         if current_location:
             # Move the file back to its original location
