@@ -4,12 +4,13 @@ from Backend.file_info import FileInfo
 from Backend.rollback import ActionRecord
 
 class Ruleset:
-    def __init__(self, folder):
+    def __init__(self, folder, match_all=False):
         if not isinstance(folder, FolderInfo):
             raise ValueError("Ruleset must take a FolderInfo object for the assigned folder")
 
         self.sortingRules = []
         self.folder = folder
+        self.match_all = match_all
             
     
     def runRules(self, file, logger=None):
@@ -17,28 +18,39 @@ class Ruleset:
 
         if not isinstance(file, FileInfo):
             raise ValueError("runRules must take a FileInfo object")
-        
-        for rule in self.sortingRules:
-            if rule.condition.check(file):
-                action = rule.action
-                new_path = action.getTargetPath(file)
 
-                reverse_action = action.getReverseAction(file)
+        matching_rules = []
 
-                if logger:
-                    action.execute(file, logger)
-                else:
-                    action.execute(file)
+        if self.match_all:
+            # Get all matching rules
+            for rule in self.sortingRules:
+                if rule.condition.check(file):
+                    matching_rules.append(rule)
+        else:
+            # Stop at first match
+            for rule in self.sortingRules:
+                if rule.condition.check(file):
+                    matching_rules.append(rule)
+                    break
 
-                record = ActionRecord(
-                    forward_action=action,
-                    reverse_action=reverse_action,
-                    file=file,
-                    result_path=new_path
-                )
-                records.append(record)
-                break
-        
+        for rule in matching_rules:
+            action = rule.action
+            new_path = action.getTargetPath(file)
+            reverse_action = action.getReverseAction(file)
+
+            if logger:
+                action.execute(file, logger)
+            else:
+                action.execute(file)
+
+            record = ActionRecord(
+                forward_action=action,
+                reverse_action=reverse_action,
+                file=file,
+                result_path=new_path
+            )
+            records.append(record)
+
         return records
     
     def addRule(self, rule):
