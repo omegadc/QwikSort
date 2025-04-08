@@ -121,12 +121,29 @@ class RulesetWindow(QDialog):
         # File type rules
         file_item = QTreeWidgetItem(["File"])
         self.ui.listView.addTopLevelItem(file_item)
+
+        # Custom extension input
+        custom_ext_label = QLabel("Other:")
+        self.custom_ext_input = QLineEdit()
+        self.custom_ext_input.setPlaceholderText("Enter extension (e.g., csv)")
+        custom_widget = QWidget()
+        custom_layout = QHBoxLayout(custom_widget)
+        custom_layout.setContentsMargins(0, 0, 0, 0)
+        custom_layout.addWidget(custom_ext_label)
+        custom_layout.addWidget(self.custom_ext_input)
+
+        # Preset extensions
         for ext in data_ruleset["File"]:
             rb = QRadioButton(ext)
             self.button_group.addButton(rb)
+            rb.toggled.connect(lambda checked, line_edit=self.custom_ext_input: line_edit.clear() if checked else None)
             checkbox_item = QTreeWidgetItem([f"{ext}"])
             file_item.addChild(checkbox_item)
             self.ui.listView.setItemWidget(checkbox_item, 0, rb)
+
+        custom_ext_item = QTreeWidgetItem(["Other"])
+        file_item.addChild(custom_ext_item)
+        self.ui.listView.setItemWidget(custom_ext_item, 0, custom_widget)
 
         # Date rules with QDateTimeEdits
         date_item = QTreeWidgetItem(["Date"])
@@ -167,8 +184,8 @@ class RulesetWindow(QDialog):
 
         
         # Other  
-        other_item = QTreeWidgetItem(["Other"])
-        self.ui.listView.addTopLevelItem(other_item)
+        # other_item = QTreeWidgetItem(["Other"])
+        # self.ui.listView.addTopLevelItem(other_item)
         # Size Filter KB/MB/GB
 
         self.ui.listView.expandAll()
@@ -186,6 +203,14 @@ class RulesetWindow(QDialog):
                 ext = btn.text().lower()
                 condition = Condition("extension", "==", f".{ext}")
                 break
+        
+        # Check custom extension if no button selected
+        if condition is None:
+            custom_ext = self.custom_ext_input.text().strip().lower()
+            if custom_ext:
+                if not custom_ext.startswith('.'):
+                    custom_ext = '.' + custom_ext
+                condition = Condition("extension", "==", custom_ext)
 
         # Check date condition only if no extension rule selected
         if condition is None:
@@ -238,6 +263,9 @@ class RulesetWindow(QDialog):
         
         self.accept() # close dialog
 
+        # Reselect folder
+        self.main_window.folder_clicked(self.main_window.state.selected_folder)
+
 class MainWindow(QMainWindow):
     """
     The main application window that displays the file system and hooks up UI events.
@@ -252,6 +280,8 @@ class MainWindow(QMainWindow):
         self.filepath = QDir(self.model.filePath(self.ui.listFiles.rootIndex()))
         self.ruleset = None
         self.ui.listRules.setHeaderHidden(True)
+        self.ui.pushbttn_matchAll.hide()
+        self.ui.pushbttn_matchOne.hide()
 
     def setup_file_system_model(self):
         """
@@ -291,9 +321,14 @@ class MainWindow(QMainWindow):
         self.ui.actionCreate_New_Folder.setStatusTip('New Folder')
         self.ui.actionDelete_Folder.setShortcut('Ctrl+X')
         self.ui.actionDelete_Folder.setStatusTip('Remove Folder')
-        self.ui.actionUndo.triggered.connect(...)
+        self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionUndo.setShortcut('Ctrl+Z')
         self.ui.actionUndo.setStatusTip('Undo recent changes')
+        self.ui.actionRulesetImport.triggered.connect(self.import_ruleset)
+        self.ui.actionExport_Ruleset.triggered.connect(self.export_ruleset)
+        self.ui.actionCreate_New_Restore_Point.triggered.connect(self.create_restore_point)
+        self.ui.actionRestore_Back_to_Restore_Point.triggered.connect(self.rollback_to_restore_point)
+
         
         # Open rulesets button is not needed right now
         # self.ui.actionOpen_Rulesets.triggered.connect(self.open_ruleset)
@@ -302,7 +337,10 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_5.clicked.connect(self.sort)
         self.ui.pushButton_2.clicked.connect(self.backButtonDir) # BackButton Folder
         self.ui.pushButton_3.clicked.connect(self.forwardButtonDir) # Forward Button
-        self.ui.btnPlus.clicked.connect(self.open_ruleset)
+        self.ui.btnPlus.clicked.connect(self.open_ruleset) # Plus button
+        self.ui.btnClear.clicked.connect(self.clear_ruleset) # Clear Button
+        self.ui.pushbttn_matchAll.toggled.connect(self.update_match_mode)
+        self.ui.pushbttn_matchOne.toggled.connect(self.update_match_mode)
         
         # Clicked Item reveals forwardBttn directory when clicked
         self.ui.listFiles.clicked.connect(self.oneItemClicked)
@@ -352,8 +390,6 @@ class MainWindow(QMainWindow):
         if directory.cdUp():
             parent_dir = directory.absolutePath()
             self.set_directory(parent_dir)
-        # else:
-        #        print("Already at the top-level Directory")
     
     def change_directory(self):
         # Opens a dialog for directory selection and updates the file view.
@@ -437,10 +473,54 @@ class MainWindow(QMainWindow):
             rule_child = QTreeWidgetItem()
             rule_item.addChild(rule_child)
             self.ui.listRules.setItemWidget(rule_child, 0, widget)
-            print(rule)
-            print(rule.condition)
+            # print(rule)
+            # print(rule.condition)
         self.ui.listRules.expandAll()
 
+        # Enable match mode buttons if rules exist
+        has_rules = len(value.sortingRules) > 0
+        self.ui.pushbttn_matchAll.show()
+        self.ui.pushbttn_matchOne.show()
+
+        if has_rules:
+            if value.match_all:
+                self.set_match_mode(True)
+            else:
+                self.set_match_mode(False)
+
+
+    def get_match_mode(self):
+        """
+        Returns True if 'Match All' is selected, False if 'Match One' is selected.
+        """
+        if self.ui.pushbttn_matchAll.isChecked():
+            return True
+        elif self.ui.pushbttn_matchOne.isChecked():
+            return False
+        else:
+            return None
+    
+    def set_match_mode(self, match_all):
+        """
+        Sets the match mode radio button.
+        mode: True for Match All, False for Match One
+        """
+        if match_all:
+            self.ui.pushbttn_matchAll.setChecked(True)
+        else:
+            self.ui.pushbttn_matchOne.setChecked(True)
+    
+    def update_match_mode(self):
+        if not self.ruleset:
+            return
+
+        sender = self.sender()
+        if sender == self.ui.pushbttn_matchAll and sender.isChecked():
+            self.ruleset.match_all = True
+            print("User selected: Match All")
+        elif sender == self.ui.pushbttn_matchOne and sender.isChecked():
+            self.ruleset.match_all = False
+            print("User selected: Match One")
 
     def folder_clicked(self, path):
         """
@@ -448,23 +528,40 @@ class MainWindow(QMainWindow):
         This method can (and is) overridden by backend code to perform custom actions.
         """
 
+        if not os.path.isdir(path):
+            self.ui.listRules.clear()
+            self.ui.btnPlus.setEnabled(False)
+            self.ui.btnClear.setEnabled(False)
+
+            self.ui.pushbttn_matchAll.hide()
+            self.ui.pushbttn_matchOne.hide()
+            return
+        
+        self.ui.btnPlus.setEnabled(True)
+        self.ui.btnClear.setEnabled(True)
         self.state.selected_folder = os.path.normpath(path)
-        print(f"Folder clicked: {self.state.selected_folder}")
         
         value = self.state.rulesets.get(self.state.selected_folder)
-        self.ruleset = self.state.rulesets.get(self.state.selected_folder)
-        # value = Class [Backend.ruleset.Ruleset]
-        # Rules in value.sortingRules = Class [Backend.sorting_rule.SortingRule]
-        # SortingRule's properties:
-        #     self.condition = condition
-        #     self.action = action
+        self.ruleset = value
+
         if value is not None:
-            print(value, type(value))
+            # print(value, type(value))
             self.createRulesetWidget(value)
+
+            # Show match mode radio buttons
+            self.ui.pushbttn_matchAll.show()
+            self.ui.pushbttn_matchOne.show()
+
+            # Set selected based on match_all flag
+            if value.match_all:
+                self.ui.pushbttn_matchAll.setChecked(True)
+            else:
+                self.ui.pushbttn_matchOne.setChecked(True)
         else:
-            print(f"Could not find value for key {self.state.selected_folder}")
             self.ui.listRules.clear()
 
+            self.ui.pushbttn_matchAll.hide()
+            self.ui.pushbttn_matchOne.hide()
 
     def sort(self):
         """
@@ -473,6 +570,43 @@ class MainWindow(QMainWindow):
         target = FolderInfo.fromPath(self.state.target_directory, True) # Create a FolderInfo object for target
         runSortingJob(self.state.rulesets, target, description="User-initiated sort")
         print(f"Ran sorting job successfully on directory {self.state.target_directory}")
+    
+    def undo(self):
+        """
+        Undo the previous sorting operation using the Rollback module
+        """
+        print("Undo clicked")
+        undoLast()
+    
+    def import_ruleset(self):
+        print("Import Ruleset clicked")
+        # TODO: Load ruleset from a file and apply it to the state
+
+    def export_ruleset(self):
+        print("Export Ruleset clicked")
+        # TODO: Serialize current ruleset and save it to a file
+    
+    def create_restore_point(self):
+        print("Create Restore Point clicked")
+        folder = FolderInfo.fromPath(self.state.target_directory, True)
+        saveRestorePoint(folder)
+
+    def rollback_to_restore_point(self):
+        print("Rollback to Restore Point clicked")
+        rollbackToRestorePoint()
+    
+    def clear_ruleset(self):
+        if self.state.selected_folder in self.state.rulesets:
+            del self.state.rulesets[self.state.selected_folder]
+            print(f"Cleared ruleset for {self.state.selected_folder}")
+        else:
+            print(f"No ruleset found for {self.state.selected_folder}")
+        
+        # Hide match radio buttons
+        self.ui.pushbttn_matchOne.hide()
+        self.ui.pushbttn_matchAll.hide()
+        
+        self.ui.listRules.clear()
 
 
 def main():
