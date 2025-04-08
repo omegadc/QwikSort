@@ -19,15 +19,15 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
     QLineEdit, QListView, QMainWindow, QMenu, QTreeWidget, QTreeView,
     QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
-    QStatusBar, QVBoxLayout, QWidget)
+    QStatusBar, QVBoxLayout, QWidget, QRadioButton)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(665, 585)
-        self.actionOpen_Rulesets = QAction(MainWindow)
-        self.actionOpen_Rulesets.setObjectName(u"actionOpen_Rulesets")
+        # self.actionOpen_Rulesets = QAction(MainWindow)
+        # self.actionOpen_Rulesets.setObjectName(u"actionOpen_Rulesets")
         self.actionExit = QAction(MainWindow)
         self.actionExit.setObjectName(u"actionExit")
         self.actionRulesetImport = QAction(MainWindow)
@@ -44,12 +44,14 @@ class Ui_MainWindow(object):
         self.actionDelete_Folder.setObjectName(u"actionDelete_Folder")
         self.actionCreate_New_Restore_Point = QAction(MainWindow)
         self.actionCreate_New_Restore_Point.setObjectName(u"actionCreate_New_Restore_Point")
+        self.actionUndo = QAction(MainWindow)
+        self.actionUndo.setObjectName(u"actionUndo")
         self.actionRestore_Back_to_Restore_Point = QAction(MainWindow)
         self.actionRestore_Back_to_Restore_Point.setObjectName(u"actionRestore_Back_to_Restore_Point")
         self.actionTutorial = QAction(MainWindow)
         self.actionTutorial.setObjectName(u"actionTutorial")
-        self.actionUninstall = QAction(MainWindow)
-        self.actionUninstall.setObjectName(u"actionUninstall")
+        # self.actionUninstall = QAction(MainWindow)
+        # self.actionUninstall.setObjectName(u"actionUninstall")
         self.actionLight_Dark_Mode = QAction(MainWindow)
         self.actionLight_Dark_Mode.setObjectName(u"actionLight_Dark_Mode")
         self.centralwidget = QWidget(MainWindow)
@@ -96,15 +98,25 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_3)
 
-        self.pushButton_6 = QPushButton(self.centralwidget)
-        self.pushButton_6.setObjectName(u"pushButton_6")
+        # self.pushButton_6 = QPushButton(self.centralwidget)
+        # self.pushButton_6.setObjectName(u"pushButton_6")
 
-        self.horizontalLayout_4.addWidget(self.pushButton_6)
+        # self.horizontalLayout_4.addWidget(self.pushButton_6)
 
-        self.pushButton_7 = QPushButton(self.centralwidget)
-        self.pushButton_7.setObjectName(u"pushButton_7")
+        # self.pushButton_7 = QPushButton(self.centralwidget)
+        # self.pushButton_7.setObjectName(u"pushButton_7")
 
-        self.horizontalLayout_4.addWidget(self.pushButton_7)
+        # self.horizontalLayout_4.addWidget(self.pushButton_7)
+
+        self.pushbttn_matchAll = QRadioButton(self.centralwidget)
+        self.pushbttn_matchAll.setObjectName(u"pushbttn_matchAll")
+
+        self.horizontalLayout_4.addWidget(self.pushbttn_matchAll)
+
+        self.pushbttn_matchOne = QRadioButton(self.centralwidget)
+        self.pushbttn_matchOne.setObjectName(u"pushbttn_matchOne")
+
+        self.horizontalLayout_4.addWidget(self.pushbttn_matchOne)
 
 
         self.gridLayout.addLayout(self.horizontalLayout_4, 1, 1, 1, 1)
@@ -118,10 +130,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.pushButton_4 = QPushButton(self.centralwidget)
-        self.pushButton_4.setObjectName(u"pushButton_4")
+        # self.pushButton_4 = QPushButton(self.centralwidget)
+        # self.pushButton_4.setObjectName(u"pushButton_4")
 
-        self.horizontalLayout_3.addWidget(self.pushButton_4)
+        # self.horizontalLayout_3.addWidget(self.pushButton_4)
 
         self.pushButton_5 = QPushButton(self.centralwidget)
         self.pushButton_5.setObjectName(u"SortBttn")
@@ -246,8 +258,8 @@ class Ui_MainWindow(object):
         self.menuHelp = QMenu(self.menubar)
         self.menuHelp.setObjectName(u"menuHelp")
         self.menuHelp.setGeometry(QRect(652, 183, 138, 102))
-        self.menuPreferences = QMenu(self.menubar)
-        self.menuPreferences.setObjectName(u"menuPreferences")
+        # self.menuPreferences = QMenu(self.menubar)
+        # self.menuPreferences.setObjectName(u"menuPreferences")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -256,20 +268,21 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuRulesets.menuAction())
         self.menubar.addAction(self.menuRollback.menuAction())
-        self.menubar.addAction(self.menuPreferences.menuAction())
+        # self.menubar.addAction(self.menuPreferences.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
         self.menuFile.addAction(self.actionOpen_Folder)
         self.menuFile.addAction(self.actionCreate_New_Folder)
         self.menuFile.addAction(self.actionDelete_Folder)
         self.menuFile.addAction(self.actionExit)
-        self.menuRulesets.addAction(self.actionOpen_Rulesets)
+        # self.menuRulesets.addAction(self.actionOpen_Rulesets)
         self.menuRulesets.addAction(self.actionRulesetImport)
         self.menuRulesets.addAction(self.actionExport_Ruleset)
         self.menuRollback.addAction(self.actionCreate_New_Restore_Point)
         self.menuRollback.addAction(self.actionRestore_Back_to_Restore_Point)
+        self.menuRollback.addAction(self.actionUndo)
         self.menuHelp.addAction(self.actionTutorial)
-        self.menuHelp.addAction(self.actionUninstall)
-        self.menuPreferences.addAction(self.actionLight_Dark_Mode)
+        # self.menuHelp.addAction(self.actionUninstall)
+        # self.menuPreferences.addAction(self.actionLight_Dark_Mode)
 
         self.retranslateUi(MainWindow)
 
@@ -278,7 +291,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.actionOpen_Rulesets.setText(QCoreApplication.translate("MainWindow", u"Open Rulesets", None))
+        # self.actionOpen_Rulesets.setText(QCoreApplication.translate("MainWindow", u"Open Rulesets", None))
         self.actionExit.setText(QCoreApplication.translate("MainWindow",u"&Exit",None))
         self.actionRulesetImport.setText(QCoreApplication.translate("MainWindow", u"Import Ruleset", None))
         self.actionExport_Ruleset.setText(QCoreApplication.translate("MainWindow", u"Export Ruleset", None))
@@ -287,17 +300,20 @@ class Ui_MainWindow(object):
         self.actionCreate_New_Folder.setText(QCoreApplication.translate("MainWindow", u"Create New Folder", None))
 #endif // QT_CONFIG(shortcut)
         self.actionDelete_Folder.setText(QCoreApplication.translate("MainWindow", u"Delete Folder", None))
+        self.actionUndo.setText(QCoreApplication.translate("MainWindow", u"Undo", None))
         self.actionCreate_New_Restore_Point.setText(QCoreApplication.translate("MainWindow", u"Create New Restore Point", None))
         self.actionRestore_Back_to_Restore_Point.setText(QCoreApplication.translate("MainWindow", u"Revert to Restore Point", None))
         self.actionTutorial.setText(QCoreApplication.translate("MainWindow", u"Tutorial", None))
-        self.actionUninstall.setText(QCoreApplication.translate("MainWindow", u"Uninstall", None))
+        # self.actionUninstall.setText(QCoreApplication.translate("MainWindow", u"Uninstall", None))
         self.actionLight_Dark_Mode.setText(QCoreApplication.translate("MainWindow", u"Light/Dark Mode", None))
         self.btnClear.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
         self.btnPlus.setText(QCoreApplication.translate("MainWindow", u"+", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Rules", None))
-        self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"Save", None))
-        self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Load", None))
-        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Delete Files", None))
+        self.pushbttn_matchAll.setText(QCoreApplication.translate("MainWindow", u"Match All", None))
+        self.pushbttn_matchOne.setText(QCoreApplication.translate("MainWindow", u"Match One", None))
+        # self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        # self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Load", None))
+        # self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Delete Files", None))
         self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Sort", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Target Directory", None))
         self.pushbtn_Dir.setText(QCoreApplication.translate("MainWindow", u"...", None))
@@ -309,6 +325,6 @@ class Ui_MainWindow(object):
         self.menuRulesets.setTitle(QCoreApplication.translate("MainWindow", u"Rulesets", None))
         self.menuRollback.setTitle(QCoreApplication.translate("MainWindow", u"Rollback", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
-        self.menuPreferences.setTitle(QCoreApplication.translate("MainWindow", u"Preferences", None))
+        # self.menuPreferences.setTitle(QCoreApplication.translate("MainWindow", u"Preferences", None))
     # retranslateUi
 

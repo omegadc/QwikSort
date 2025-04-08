@@ -291,6 +291,9 @@ class MainWindow(QMainWindow):
         self.ui.actionCreate_New_Folder.setStatusTip('New Folder')
         self.ui.actionDelete_Folder.setShortcut('Ctrl+X')
         self.ui.actionDelete_Folder.setStatusTip('Remove Folder')
+        self.ui.actionUndo.triggered.connect(...)
+        self.ui.actionUndo.setShortcut('Ctrl+Z')
+        self.ui.actionUndo.setStatusTip('Undo recent changes')
         
         # Open rulesets button is not needed right now
         # self.ui.actionOpen_Rulesets.triggered.connect(self.open_ruleset)
