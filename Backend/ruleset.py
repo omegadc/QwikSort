@@ -11,8 +11,7 @@ class Ruleset:
         self.sortingRules = []
         self.folder = folder
         self.match_all = match_all
-            
-    
+
     def runRules(self, file, logger=None):
         records = []
 
@@ -22,12 +21,9 @@ class Ruleset:
         matching_rules = []
 
         if self.match_all:
-            # Get all matching rules
-            for rule in self.sortingRules:
-                if rule.condition.check(file):
-                    matching_rules.append(rule)
+            if all(rule.condition.check(file) for rule in self.sortingRules):
+                matching_rules = self.sortingRules
         else:
-            # Stop at first match
             for rule in self.sortingRules:
                 if rule.condition.check(file):
                     matching_rules.append(rule)
@@ -52,7 +48,7 @@ class Ruleset:
             records.append(record)
 
         return records
-    
+
     def addRule(self, rule):
         if not isinstance(rule, SortingRule):
             raise ValueError("addRule must take a SortingRule object")
