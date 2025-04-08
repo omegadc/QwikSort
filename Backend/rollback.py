@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass
 from typing import List, Optional
 from Backend.action import Action
@@ -21,7 +22,6 @@ MAX_UNDO = 5
 undo_stack: List[UndoBatch] = []
 restore_point: Optional[UndoBatch] = None
 
-
 def recordBatch(action_records: List[ActionRecord], description: str):
     batch = UndoBatch(
         timestamp=datetime.now(),
@@ -33,13 +33,11 @@ def recordBatch(action_records: List[ActionRecord], description: str):
     if len(undo_stack) > MAX_UNDO:
         undo_stack.pop(0)
 
-
 def performSortAndRecord(files: List[FileInfo], action: Action, logger=None, description="Sort Operation"):
     records = []
 
     for file in files:
         new_path = action.get_target_path(file)
-
         reverse_action = action.get_reverse_action(file, new_path)
         action.execute(file, logger=logger)
 
@@ -52,7 +50,6 @@ def performSortAndRecord(files: List[FileInfo], action: Action, logger=None, des
         records.append(record)
 
     recordBatch(records, description)
-
 
 def undoLast():
     if not undo_stack:
@@ -69,15 +66,14 @@ def undoLast():
         except Exception as e:
             print(f"Failed to undo {record.file.path}: {e}")
 
-
 def saveRestorePoint():
     global restore_point
     if not undo_stack:
         print("No operations to save as restore point.")
         return
-    restore_point = undo_stack[-1]
+    # Make a deep copy of the last undo batch to save a restore point that is independent of future changes.
+    restore_point = copy.deepcopy(undo_stack[-1])
     print(f"Restore point saved: {restore_point.description}")
-
 
 def rollbackToRestorePoint():
     global restore_point
