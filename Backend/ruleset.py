@@ -18,34 +18,51 @@ class Ruleset:
         if not isinstance(file, FileInfo):
             raise ValueError("runRules must take a FileInfo object")
 
-        matching_rules = []
-
         if self.match_all:
             if all(rule.condition.check(file) for rule in self.sortingRules):
-                matching_rules = self.sortingRules
+                # Ensure all actions are the same type
+                action_types = [type(rule.action) for rule in self.sortingRules]
+                if len(set(action_types)) != 1:
+                    raise ValueError("All rules must have the same action type when match_all is enabled.")
+
+                # Execute only the final rule's action
+                final_rule = self.sortingRules[-1]
+                action = final_rule.action
+                new_path = action.getTargetPath(file)
+                reverse_action = action.getReverseAction(file)
+
+                if logger:
+                    action.execute(file, logger)
+                else:
+                    action.execute(file)
+
+                record = ActionRecord(
+                    forward_action=action,
+                    reverse_action=reverse_action,
+                    file=file,
+                    result_path=new_path
+                )
+                records.append(record)
         else:
             for rule in self.sortingRules:
                 if rule.condition.check(file):
-                    matching_rules.append(rule)
-                    break
+                    action = rule.action
+                    new_path = action.getTargetPath(file)
+                    reverse_action = action.getReverseAction(file)
 
-        for rule in matching_rules:
-            action = rule.action
-            new_path = action.getTargetPath(file)
-            reverse_action = action.getReverseAction(file)
+                    if logger:
+                        action.execute(file, logger)
+                    else:
+                        action.execute(file)
 
-            if logger:
-                action.execute(file, logger)
-            else:
-                action.execute(file)
-
-            record = ActionRecord(
-                forward_action=action,
-                reverse_action=reverse_action,
-                file=file,
-                result_path=new_path
-            )
-            records.append(record)
+                    record = ActionRecord(
+                        forward_action=action,
+                        reverse_action=reverse_action,
+                        file=file,
+                        result_path=new_path
+                    )
+                    records.append(record)
+                    break  # Stop after the first match
 
         return records
 
