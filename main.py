@@ -1,5 +1,6 @@
 # Frontend UI Imports
 import sys
+import ctypes
 import os
 import json
 from datetime import datetime
@@ -12,7 +13,7 @@ from PySide6.QtWidgets import (
     QButtonGroup, QRadioButton, QMessageBox
 )
 from PySide6.QtCore import QDir, QModelIndex, QDateTime, Qt, QCalendar
-from PySide6.QtGui import QPalette, QColor
+from PySide6.QtGui import QPalette, QColor, QIcon
 from Frontend.MainWindow import Ui_MainWindow
 from Frontend.ruleset import Ui_Dialog
 from Frontend.newFolder import Ui_Form
@@ -28,6 +29,14 @@ from Backend.file_info import FileInfo
 from Backend.rollback import undoLast, saveRestorePoint, rollbackToRestorePoint
 from Backend.app_state import AppState
 
+import sys
+import ctypes
+from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtGui import QIcon
+
+# Set AppUserModelID to correct Windows taskbar icon issues
+myappid = u"qwiksort.1.0"
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 def create_item_widget(text, control_widget):
     """
@@ -283,6 +292,7 @@ class MainWindow(QMainWindow):
         self.ui.listRules.setHeaderHidden(True)
         self.ui.pushbttn_matchAll.hide()
         self.ui.pushbttn_matchOne.hide()
+        self.setWindowIcon(QIcon("qwikicon.ico"))
 
     def setup_file_system_model(self):
         """
@@ -697,6 +707,8 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+
+    app.setWindowIcon(QIcon("qwikicon.ico"))
     app_state = AppState()
 
     window = MainWindow(app_state)
