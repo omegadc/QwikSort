@@ -7,7 +7,7 @@ from Backend.folder_info import FolderInfo
 from Backend.file_info import FileInfo
 from datetime import datetime
 
-restore_point: Optional[FolderInfo] = None
+folder_restore_point: Optional[FolderInfo] = None
 
 @dataclass
 class ActionRecord:
@@ -24,7 +24,6 @@ class UndoBatch:
 
 MAX_UNDO = 5
 undo_stack: List[UndoBatch] = []
-restore_point: Optional[UndoBatch] = None
 
 def recordBatch(action_records: List[ActionRecord], description: str):
     batch = UndoBatch(
@@ -77,8 +76,8 @@ def saveRestorePoint(folder: FolderInfo):
     Args:
         folder (FolderInfo): A snapshot of the current directory layout.
     """
-    global restore_point
-    restore_point = copy.deepcopy(folder)
+    global folder_restore_point
+    folder_restore_point = copy.deepcopy(folder)
     print(f"Restore point saved for folder: {folder.path}")
 
 def find_file(file_name: str, start_dir: str) -> Optional[str]:
@@ -106,18 +105,18 @@ def rollbackToRestorePoint():
     restore point folder, and if found, uses an Action of type 'move' to return it 
     to its original location.
     """
-    if not restore_point:
+    if not folder_restore_point:
         print("No restore point saved.")
         return
 
-    print(f"Rolling back to restore point at folder: {restore_point.path}")
+    print(f"Rolling back to restore point at folder: {folder_restore_point.path}")
 
     def restore_file(snapshot_file: FileInfo):
         # Check if the file already exists in the expected (snapshot) location.
         if os.path.exists(snapshot_file.path):
             return  # The file is already in its restore location.
 
-        base_dir = os.path.dirname(restore_point.path)
+        base_dir = os.path.dirname(folder_restore_point.path)
         full_file_name = snapshot_file.name + snapshot_file.extension
         current_location = find_file(full_file_name, base_dir)
 
@@ -144,4 +143,4 @@ def rollbackToRestorePoint():
             else:
                 restore_file(item)
 
-    restore_folder(restore_point)
+    restore_folder(folder_restore_point)
