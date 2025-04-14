@@ -130,10 +130,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        # self.pushButton_4 = QPushButton(self.centralwidget)
-        # self.pushButton_4.setObjectName(u"pushButton_4")
+        self.pushButton_4 = QPushButton(self.centralwidget)
+        self.pushButton_4.setObjectName(u"pushButton_4")
 
-        # self.horizontalLayout_3.addWidget(self.pushButton_4)
+        self.horizontalLayout_3.addWidget(self.pushButton_4)
 
         self.pushButton_5 = QPushButton(self.centralwidget)
         self.pushButton_5.setObjectName(u"SortBttn")
@@ -313,7 +313,7 @@ class Ui_MainWindow(object):
         self.pushbttn_matchOne.setText(QCoreApplication.translate("MainWindow", u"Match One", None))
         # self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"Save", None))
         # self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Load", None))
-        # self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Delete Files", None))
+        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Delete Files", None))
         self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Sort", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Target Directory", None))
         self.pushbtn_Dir.setText(QCoreApplication.translate("MainWindow", u"...", None))

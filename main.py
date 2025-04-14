@@ -335,6 +335,7 @@ class MainWindow(QMainWindow):
 
         # UI actions
         self.ui.pushButton_5.clicked.connect(self.sort)
+        self.ui.pushButton_4.clicked.connect(self.closeEvent)
         self.ui.pushButton_2.clicked.connect(self.backButtonDir) # BackButton Folder
         self.ui.pushButton_3.clicked.connect(self.forwardButtonDir) # Forward Button
         self.ui.btnPlus.clicked.connect(self.open_ruleset) # Plus button
@@ -348,6 +349,32 @@ class MainWindow(QMainWindow):
         # Light/Dark Mode
         self.is_dark_mode = True
         self.set_dark_theme()
+
+    def closeEvent(self):
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Confirm Action")
+        msg_box.setText("Are you sure you want to delete Files?")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        # msg_box.setIcon(QMessageBox.question)
+
+        result = msg_box.exec()
+
+        if result == QMessageBox.StandardButton.Yes:
+            # TODO add button
+            print("Function Triggered")
+        else:
+            print("Deletion Cancelled")
+
+        # answer = QMessageBox.question(self,
+        #                               'Confirmation',
+        #                               'Are you sure to delete?',
+        #                               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        #                               QMessageBox.StandardButton.No)
+        # if answer == QMessageBox.StandardButton.Yes:
+        #     event.accept()
+        #     # TODO add Delete Files Function here
+        # else:
+        #     event.ignore()
     
     def set_dark_theme(self):
         self.setStyle(QStyleFactory.create("Fusion"))
