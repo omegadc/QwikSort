@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
-            MainWindow.setObjectName(u"MainWindow")
+            MainWindow.setObjectName(u"QwikSort")
         MainWindow.resize(665, 585)
         # self.actionOpen_Rulesets = QAction(MainWindow)
         # self.actionOpen_Rulesets.setObjectName(u"actionOpen_Rulesets")
