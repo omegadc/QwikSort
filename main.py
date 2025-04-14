@@ -354,7 +354,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("Confirm Action")
-        msg_box.setText("Are you sure you want to delete Files?")
+        msg_box.setText("This will delete all files matching sorting critera. Are you sure?")
         msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         # msg_box.setIcon(QMessageBox.question)
 
