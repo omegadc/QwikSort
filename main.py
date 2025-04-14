@@ -713,6 +713,13 @@ def main():
 
     window = MainWindow(app_state)
     window.show()
+
+    # Check if a .qsr file was passed in args
+    if len(sys.argv) > 1:
+        file_arg = sys.argv[1]
+        if file_arg.lower().endswith(".qsr") and os.path.isfile(file_arg):
+            window.import_ruleset(file_arg)
+
     sys.exit(app.exec())
 
 
