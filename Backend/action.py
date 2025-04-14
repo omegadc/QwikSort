@@ -3,6 +3,7 @@ from Backend.file_info import FileInfo
 from pathlib import Path
 import send2trash
 import shutil
+import time
 
 class Action:
     def __init__(self, type, finalFolder = None, newName = None):
