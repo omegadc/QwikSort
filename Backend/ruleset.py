@@ -86,5 +86,23 @@ class Ruleset:
         instance.sortingRules = rules
         return instance
     
+    def to_dict(self):
+        return {
+            "folder": self.folder.path,
+            "match_all": self.match_all,
+            "rules": [rule.to_dict() for rule in self.sortingRules]
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        from Backend.folder_info import FolderInfo
+        from Backend.sorting_rule import SortingRule
+
+        folder = FolderInfo(data["folder"])
+        ruleset = cls(folder, match_all=data["match_all"])
+        ruleset.sortingRules = [SortingRule.from_dict(rule) for rule in data["rules"]]
+        return ruleset
+
+    
     def __repr__(self):
         return f"<Ruleset for {self.folder.name} with {len(self.sortingRules)} rules>"

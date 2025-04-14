@@ -30,3 +30,18 @@ class SortingRule:
         if self.condition.check(file):
             self.action.execute(file)
     
+    def to_dict(self):
+        return {
+            "condition": self.condition.to_dict(),
+            "action": self.action.to_dict()
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        from Backend.condition import Condition
+        from Backend.action import Action
+        return cls(
+            condition=Condition.from_dict(data["condition"]),
+            action=Action.from_dict(data["action"])
+        )
+    

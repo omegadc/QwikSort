@@ -119,6 +119,28 @@ class Condition:
         else:
             raise ValueError(f"Invalid key: {self.type}")
     
+    def to_dict(self):
+        value = self.value
+        if isinstance(value, datetime):
+            value = value.isoformat()
+
+        return {
+            "type": self.type,
+            "operation": self.operation,
+            "value": value
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        value = data["value"]
+        if "date" in data["type"]:
+            value = datetime.fromisoformat(value)
+        return cls(
+            type=data["type"],
+            operation=data["operation"],
+            value=value
+        )
+    
     def __repr__(self):
         return (f"Condition(type={self.type!r}, operation={self.operation!r}, "
                 f"value={self.value!r})")

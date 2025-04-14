@@ -130,6 +130,21 @@ class Action:
         return (f"Action(type={self.type!r}, finalFolder={self.finalFolder!r}, "
                 f"newName={self.newName!r})")
     
+    def to_dict(self):
+        return {
+            "type": self.type,
+            "finalFolder": self.finalFolder,
+            "newName": self.newName
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            type=data["type"],
+            finalFolder=data.get("finalFolder"),
+            newName=data.get("newName")
+        )
+    
 
 # TODO: Remove the code below once done debugging, implement pytests
 
