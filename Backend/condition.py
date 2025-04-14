@@ -2,10 +2,6 @@ from datetime import datetime
 from Backend.file_info import *
 import operator
 
-# TODO: Remove these imports below once done debugging, implement pytests
-import os
-import time
-
 class Condition:
     operators = {
         ">": operator.gt,
@@ -144,45 +140,3 @@ class Condition:
     def __repr__(self):
         return (f"Condition(type={self.type!r}, operation={self.operation!r}, "
                 f"value={self.value!r})")
-
-
-
-# TODO: Remove the code below once done debugging, implement pytests
-
-# Test function
-def main():
-    test_file = "test_file.txt"
-
-    # Create test file
-    if not os.path.exists(test_file):
-        with open(test_file, "w") as f:
-            f.write("This is a test file.")
-        print(f"Test file '{test_file}' created.")
-
-    time.sleep(1)
-
-    # Create FileInfo object from path
-    testFileInfo = FileInfo.fromPath(test_file)
-
-    # Create Condition objects to check several attributes
-    conditions = [
-        Condition("extension", "==", ".txt"),
-        Condition("extension", "includes", "txt"),
-        Condition("name", "includes", "test"),
-        Condition("name", "==", "test_file"),
-        Condition("size", ">=", 20),
-        Condition("size", ">", 20),
-        Condition("dateCreated", ">", datetime(2025, 3, 10)),
-        Condition("dateCreated", "<", datetime(2025, 3, 21)),
-        Condition("dateModified", "==", datetime(2025, 3, 13)),
-        Condition("dateModified", "!=", datetime(2025, 3, 13))
-    ]
-
-    print("\nCondition checks against test_file.txt:")
-    for condition in conditions:
-        print(f"{repr(condition)}: {condition.check(testFileInfo)}")
-    
-
-# Only run main when directly testing
-if __name__ == "__main__":
-    main()

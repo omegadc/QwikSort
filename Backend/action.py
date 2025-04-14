@@ -3,7 +3,6 @@ from Backend.file_info import FileInfo
 from pathlib import Path
 import send2trash
 import shutil
-import time # TODO: Remove once done debugging, implement pytests
 
 class Action:
     def __init__(self, type, finalFolder = None, newName = None):
@@ -67,9 +66,7 @@ class Action:
 
         try:
             if os.path.exists(destination):
-                print(f"MOVE: {destination} already exists, skipping move for {file.path}...") # TODO: remove debug
                 return  # Skip the file
-            print(f"MOVE: {file.path} -> {destination}") # TODO: remove debug
             shutil.move(file.path, destination)
         except Exception as e:
             print(f"Failed to move file '{file.path}' to '{destination}': {e}")
@@ -149,33 +146,3 @@ class Action:
             newName=data.get("newName")
         )
     
-
-# TODO: Remove the code below once done debugging, implement pytests
-
-# Test function
-def main():
-    test_file = "test_file.txt"
-
-    # Create test file
-    if not os.path.exists(test_file):
-        with open(test_file, "w") as f:
-            f.write("This is a test file.")
-        print(f"Test file '{test_file}' created.")
-
-    time.sleep(1)
-
-    # Create FileInfo object from path
-    testFileInfo = FileInfo.fromPath(test_file)
-
-    # Create a new action to move a file to test_folder
-    moveFile = Action("copy", finalFolder="test_folder")
-
-    # Execute the action
-    moveFile.execute(testFileInfo)
-    print(repr(moveFile))
-    print("Executed!")
-    
-
-# Only run main when directly testing
-if __name__ == "__main__":
-    main()

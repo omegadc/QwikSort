@@ -638,9 +638,6 @@ class MainWindow(QMainWindow):
 
             print(f"Rulesets imported from {file_path}")
 
-            # TODO: if needed, we can add a ruleset view refresh/redraw later
-            # self.refresh_ruleset_view()
-
         except Exception as e:
             print(f"Failed to import rulesets: {e}")
 
