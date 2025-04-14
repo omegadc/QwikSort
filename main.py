@@ -1,6 +1,7 @@
 # Frontend UI Imports
 import sys
 import os
+import json
 from datetime import datetime
 from pathlib import Path
 from PySide6.QtWidgets import (
@@ -594,7 +595,7 @@ class MainWindow(QMainWindow):
         """
         Hook for sorting files when clicking the Sort button (pushButton_5)
         """
-        target = FolderInfo.fromPath(self.state.target_directory, True) # Create a FolderInfo object for target
+        target = FolderInfo.fromPath(self.state.target_directory, True) 
         runSortingJob(self.state.rulesets, target, description="User-initiated sort")
         print(f"Ran sorting job successfully on directory {self.state.target_directory}")
     
@@ -607,11 +608,65 @@ class MainWindow(QMainWindow):
     
     def import_ruleset(self):
         print("Import Ruleset clicked")
-        # TODO: Load ruleset from a file and apply it to the state
 
-    def export_ruleset(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            None, 
+            "Import Rulesets", 
+            "", 
+            "QwikSort Ruleset (*.qsr);;All Files (*)"
+        )
+
+        if not file_path:
+            return  # User cancelled
+
+        try:
+            with open(file_path, "r") as f:
+                data = json.load(f)
+
+            # Overwrite state rulesets with imported ones
+            self.state.rulesets = {
+                folder_path: Ruleset.from_dict(ruleset_data)
+                for folder_path, ruleset_data in data.items()
+            }
+
+            print(f"Rulesets imported from {file_path}")
+
+            # TODO: if needed, we can add a ruleset view refresh/redraw later
+            # self.refresh_ruleset_view()
+
+        except Exception as e:
+            print(f"Failed to import rulesets: {e}")
+
+    def export_ruleset(self): 
         print("Export Ruleset clicked")
-        # TODO: Serialize current ruleset and save it to a file
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            None, 
+            "Export Rulesets", 
+            "", 
+            "QwikSort Ruleset (*.qsr);;All Files (*)"
+        )
+
+        if not file_path:
+            return  # User cancelled
+
+        # Ensure the file ends with .qsr (QwikSort Ruleset)
+        if not file_path.endswith(".qsr"):
+            file_path += ".qsr"
+
+        try:
+            data = {
+                folder_path: ruleset.to_dict()
+                for folder_path, ruleset in self.state.rulesets.items()
+            }
+
+            with open(file_path, "w") as f:
+                json.dump(data, f, indent=4)
+
+            print(f"Rulesets exported to {file_path}")
+
+        except Exception as e:
+            print(f"Failed to export rulesets: {e}")
     
     def create_restore_point(self):
         print("Create Restore Point clicked")

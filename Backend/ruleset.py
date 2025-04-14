@@ -95,10 +95,10 @@ class Ruleset:
 
     @classmethod
     def from_dict(cls, data):
-        from Backend.folder_info import FolderInfo
-        from Backend.sorting_rule import SortingRule
-
-        folder = FolderInfo(data["folder"])
+        folder = FolderInfo.fromPath(
+            folderPath=data["folder"],
+            isTarget=False 
+        )
         ruleset = cls(folder, match_all=data["match_all"])
         ruleset.sortingRules = [SortingRule.from_dict(rule) for rule in data["rules"]]
         return ruleset
