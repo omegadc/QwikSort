@@ -354,28 +354,14 @@ class MainWindow(QMainWindow):
     def closeEvent(self):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("Confirm Action")
-        msg_box.setText("This will delete all files matching sorting critera. Are you sure?")
+        msg_box.setText("This will recycle all files matching all sorting critera. This CANNOT be undone. Are you sure?")
         msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         # msg_box.setIcon(QMessageBox.question)
 
         result = msg_box.exec()
 
         if result == QMessageBox.StandardButton.Yes:
-            # TODO add button
-            print("Function Triggered")
-        else:
-            print("Deletion Cancelled")
-
-        # answer = QMessageBox.question(self,
-        #                               'Confirmation',
-        #                               'Are you sure to delete?',
-        #                               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-        #                               QMessageBox.StandardButton.No)
-        # if answer == QMessageBox.StandardButton.Yes:
-        #     event.accept()
-        #     # TODO add Delete Files Function here
-        # else:
-        #     event.ignore()
+            self.delete() # Delete files
     
     def set_dark_theme(self):
         self.setStyle(QStyleFactory.create("Fusion"))
@@ -598,6 +584,27 @@ class MainWindow(QMainWindow):
         target = FolderInfo.fromPath(self.state.target_directory, True) 
         runSortingJob(self.state.rulesets, target, description="User-initiated sort")
         print(f"Ran sorting job successfully on directory {self.state.target_directory}")
+
+    def delete(self):
+        print("Deleting files by recycling those matching criteria...")
+        # Backup original actions so we can restore them later
+        original_actions = []
+        for folder, ruleset in self.state.rulesets.items():
+            for rule in ruleset.sortingRules:
+                # Save a reference to each rule and its original action
+                original_actions.append((rule, rule.action))
+                # Overwrite the rule's action
+                rule.action = Action("recycle")
+        
+        target = FolderInfo.fromPath(self.state.target_directory, True)
+        runSortingJob(self.state.rulesets, target,
+                    description="User-initiated recycle action")
+
+        # Restore the original actions for all rules
+        for rule, original_action in original_actions:
+            rule.action = original_action
+
+        print("Deletion (recycle) process completed, and original actions have been restored.")
     
     def undo(self):
         """

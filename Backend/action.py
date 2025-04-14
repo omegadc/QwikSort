@@ -1,5 +1,6 @@
 import os
 from Backend.file_info import FileInfo
+from pathlib import Path
 import send2trash
 import shutil
 import time # TODO: Remove once done debugging, implement pytests
@@ -8,8 +9,10 @@ class Action:
     def __init__(self, type, finalFolder = None, newName = None):
         self.type = type
         self.newName = newName
-
-        if os.path.isdir(finalFolder) or finalFolder is None:
+        
+        if finalFolder is None:
+            self.finalFolder = finalFolder
+        elif os.path.isdir(finalFolder):
             self.finalFolder = finalFolder
         else:
             raise TypeError("Action.finalFolder must be an existing directory")
@@ -101,7 +104,8 @@ class Action:
     def recycleFile(self, file):
         Action.verify(file)
 
-        send2trash(file.path)
+        clean_path = Path(file.path).resolve()
+        send2trash.send2trash(str(clean_path))
     
     # Function to log the action
     def logAction(self, file, logger):

@@ -29,32 +29,15 @@ class Ruleset:
                 final_rule = self.sortingRules[-1]
                 action = final_rule.action
                 new_path = action.getTargetPath(file)
-                reverse_action = action.getReverseAction(file)
+                if action.type != "recycle":
+                    reverse_action = action.getReverseAction(file)
 
                 if logger:
                     action.execute(file, logger)
                 else:
                     action.execute(file)
 
-                record = ActionRecord(
-                    forward_action=action,
-                    reverse_action=reverse_action,
-                    file=file,
-                    result_path=new_path
-                )
-                records.append(record)
-        else:
-            for rule in self.sortingRules:
-                if rule.condition.check(file):
-                    action = rule.action
-                    new_path = action.getTargetPath(file)
-                    reverse_action = action.getReverseAction(file)
-
-                    if logger:
-                        action.execute(file, logger)
-                    else:
-                        action.execute(file)
-
+                if action.type != "recycle":
                     record = ActionRecord(
                         forward_action=action,
                         reverse_action=reverse_action,
@@ -62,6 +45,26 @@ class Ruleset:
                         result_path=new_path
                     )
                     records.append(record)
+        else:
+            for rule in self.sortingRules:
+                if rule.condition.check(file):
+                    action = rule.action
+                    new_path = action.getTargetPath(file)
+                    if action.type != "recycle":
+                        reverse_action = action.getReverseAction(file)
+
+                    if logger:
+                        action.execute(file, logger)
+                    else:
+                        action.execute(file)
+                    if action.type != "recycle":
+                        record = ActionRecord(
+                            forward_action=action,
+                            reverse_action=reverse_action,
+                            file=file,
+                            result_path=new_path
+                        )
+                        records.append(record)
                     break  # Stop after the first match
 
         return records
