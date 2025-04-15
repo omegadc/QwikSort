@@ -2,28 +2,51 @@ import os
 from Backend.file_info import FileInfo
 
 class FolderInfo:
-    def __init__(self, name, contents, isTarget):
+    def __init__(self, name, contents, isTarget, path, ruleset=None):
         self.name = name
         self.contents = contents
         self.isTarget = isTarget
-    
-    # Function to crete a FolderInfo object from a given path
+        self.path = path
+        self.ruleset = ruleset
+
+    # Create a FolderInfo object from a given path
     @classmethod
-    def fromPath(cls, folderPath, isTarget):
+    def fromPath(cls, folderPath, isTarget, ruleset=None, depth=0, max_depth=3):
         folderName = os.path.basename(folderPath)
+        folderRuleset = ruleset if ruleset is not None else None
         contents = []
 
-        obj = os.scandir(folderPath)
+        # Check if the folder exists and is a directory
+        if not os.path.exists(folderPath) or not os.path.isdir(folderPath):
+            print(f"Folder not found or not a directory: {folderPath}")
+            return cls(folderName, contents, isTarget, folderPath, ruleset=folderRuleset)
 
-        for entry in obj:
-            if entry.is_dir():
-                contents.append(cls.fromPath(entry.path, False)) # A subfolder from construction should never be a target directory
-            elif entry.is_file():
-                contents.append(FileInfo.fromPath(entry.path))
-        
-        return cls(folderName, contents, isTarget)
-    
-    # Returns a tree structured string; useful for debugging
+        try:
+            with os.scandir(folderPath) as entries:
+                for entry in entries:
+                    try:
+                        # Handle directories
+                        if entry.is_dir(follow_symlinks=False):
+                            if depth < max_depth - 1:  # Allow scanning up to the maximum depth
+                                contents.append(cls.fromPath(entry.path, False, ruleset, depth + 1, max_depth))
+                            else:
+                                # At max depth include the folder without scanning further
+                                contents.append(cls(os.path.basename(entry.path), [], False, entry.path, ruleset=folderRuleset))
+                        # Handle files
+                        elif entry.is_file():
+                            try:
+                                contents.append(FileInfo.fromPath(entry.path))
+                            except FileNotFoundError as e:
+                                print(f"FileNotFoundError: Skipping {entry.path} - {e}")
+                    except (PermissionError, FileNotFoundError) as e:
+                        print(f"Error accessing {entry.path} - {e}")
+        except (PermissionError, FileNotFoundError) as e:
+            print(f"Error accessing {folderPath} - {e}")
+            return cls(folderName, contents, isTarget, folderPath, ruleset=folderRuleset)
+
+        return cls(folderName, contents, isTarget, folderPath, ruleset=folderRuleset)
+
+    # Returns a tree-structured string; useful for debugging
     def toTreeString(self, level=0):
         indent = '  ' * level
         tree = f"{indent}- {self.name}/ (target={self.isTarget})\n"
@@ -37,18 +60,11 @@ class FolderInfo:
     def __repr__(self):
         return f"FolderInfo(name='{self.name}', isTarget={self.isTarget}, items={len(self.contents)})"
 
-
-# TODO: Remove the code below once done debugging, implement pytests
-
 # Test function
 def main():
     test_folder = "test_folder"
-
-    # Create FolderInfo object from path
     testFolderInfo = FolderInfo.fromPath(test_folder, True)
-
     print(testFolderInfo.toTreeString())
-            
-# Only run main when directly testing
+
 if __name__ == "__main__":
     main()

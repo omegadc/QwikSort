@@ -12,7 +12,16 @@ class SortingRule:
 
         self.condition = condition
         self.action = action
-            
+
+    def __str__(self):
+        conditionType = self.condition.type
+
+        if conditionType == "dateCreated":
+            conditionType = "date created"
+        elif conditionType == "dateModified":
+            conditionType = "date modified"
+
+        return f"If file {conditionType} {self.condition.operationToString()} {self.condition.value}, move file here."
     
     def runRule(self, file):
         if not isinstance(file, FileInfo):
@@ -20,3 +29,19 @@ class SortingRule:
         
         if self.condition.check(file):
             self.action.execute(file)
+    
+    def to_dict(self):
+        return {
+            "condition": self.condition.to_dict(),
+            "action": self.action.to_dict()
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        from Backend.condition import Condition
+        from Backend.action import Action
+        return cls(
+            condition=Condition.from_dict(data["condition"]),
+            action=Action.from_dict(data["action"])
+        )
+    

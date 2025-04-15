@@ -2,10 +2,6 @@ from datetime import datetime
 from Backend.file_info import *
 import operator
 
-# TODO: Remove these imports below once done debugging, implement pytests
-import os
-import time
-
 class Condition:
     operators = {
         ">": operator.gt,
@@ -14,7 +10,8 @@ class Condition:
         "<=": operator.le,
         "==": operator.eq, 
         "!=": operator.ne,
-        "contains": lambda a, b: b in a
+        "includes": lambda a, b: b.lower() in a.lower(),
+        "excludes": lambda a, b: b.lower() not in a.lower()
     }
 
     def __init__(self, type, operation, value):
@@ -41,11 +38,27 @@ class Condition:
         if op not in Condition.operators:
             raise ValueError(f"Invalid operator {op}")
         
+        print(f"Evaluating: {left!r} {op} {right!r}")
+
         # Convert to strings
-        if isinstance(left, str) or isinstance(right, str):
-            left, right = str(left), str(right)
+        if isinstance(left, str) and isinstance(right, str):
+            left, right = left.lower(), right.lower()
 
         return Condition.operators[op](left, right)
+    
+    # Function to return the class operation to a string
+    def operationToString(self):
+        operation_map = {
+            ">": "is greater than",
+            "<": "is less than",
+            ">=": "is greater or equal to",
+            "<=": "is less or equal to",
+            "==": "is equal to",
+            "!=": "is not equal to",
+            "includes": "contains",
+            "excludes": "does not contain"
+        }
+        return operation_map.get(self.operation, f"Unknown operation: {self.operation}")
     
     # Function to compare value to file name
     def checkName(self, file):
@@ -102,48 +115,28 @@ class Condition:
         else:
             raise ValueError(f"Invalid key: {self.type}")
     
+    def to_dict(self):
+        value = self.value
+        if isinstance(value, datetime):
+            value = value.isoformat()
+
+        return {
+            "type": self.type,
+            "operation": self.operation,
+            "value": value
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        value = data["value"]
+        if "date" in data["type"]:
+            value = datetime.fromisoformat(value)
+        return cls(
+            type=data["type"],
+            operation=data["operation"],
+            value=value
+        )
+    
     def __repr__(self):
         return (f"Condition(type={self.type!r}, operation={self.operation!r}, "
                 f"value={self.value!r})")
-
-
-
-# TODO: Remove the code below once done debugging, implement pytests
-
-# Test function
-def main():
-    test_file = "test_file.txt"
-
-    # Create test file
-    if not os.path.exists(test_file):
-        with open(test_file, "w") as f:
-            f.write("This is a test file.")
-        print(f"Test file '{test_file}' created.")
-
-    time.sleep(1)
-
-    # Create FileInfo object from path
-    testFileInfo = FileInfo.fromPath(test_file)
-
-    # Create Condition objects to check several attributes
-    conditions = [
-        Condition("extension", "==", ".txt"),
-        Condition("extension", "contains", "txt"),
-        Condition("name", "contains", "test"),
-        Condition("name", "==", "test_file"),
-        Condition("size", ">=", 20),
-        Condition("size", ">", 20),
-        Condition("dateCreated", ">", datetime(2025, 3, 10)),
-        Condition("dateCreated", "<", datetime(2025, 3, 21)),
-        Condition("dateModified", "==", datetime(2025, 3, 13)),
-        Condition("dateModified", "!=", datetime(2025, 3, 13))
-    ]
-
-    print("\nCondition checks against test_file.txt:")
-    for condition in conditions:
-        print(f"{repr(condition)}: {condition.check(testFileInfo)}")
-    
-
-# Only run main when directly testing
-if __name__ == "__main__":
-    main()

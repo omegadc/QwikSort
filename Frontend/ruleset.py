@@ -49,24 +49,6 @@ class Ui_Dialog(object):
 
 
         self.horizontalLayout.addLayout(self.verticalLayout)
-
-        self.verticalLayout_2 = QVBoxLayout()
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.label_sets = QLabel(self.verticalWidget_3)
-        self.label_sets.setObjectName(u"label_sets")
-        self.label_sets.setFont(font)
-
-        self.verticalLayout_2.addWidget(self.label_sets)
-
-        self.listView_2 = QTreeWidget(self.verticalWidget_3)
-        self.listView_2.setObjectName(u"listView_2")
-
-        self.verticalLayout_2.addWidget(self.listView_2)
-
-
-        self.horizontalLayout.addLayout(self.verticalLayout_2)
-
-
         self.verticalLayout_3.addLayout(self.horizontalLayout)
 
         self.buttonBox = QDialogButtonBox(self.verticalWidget_3)
@@ -88,6 +70,5 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.label_rules.setText(QCoreApplication.translate("Dialog", u"Rules", None))
-        self.label_sets.setText(QCoreApplication.translate("Dialog", u"Sets", None))
     # retranslateUi
 
