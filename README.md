@@ -1,5 +1,6 @@
 # QwikSort: Rule-Based File Sorting
 ![QwikLogo](https://github.com/user-attachments/assets/fd9a0640-dd28-4dc4-a4af-3d903cfec13e)
+
 QwikSort is a file sorting software developed for the Windows 10/11 operating system which utilizes a sorting rule system to give the user deep control over how their files are moved, while also making sorting effecient through mass file operations.
 
 ## Features
