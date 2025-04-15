@@ -682,6 +682,26 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"Failed to export rulesets: {e}")
     
+    def import_ruleset_from_file(self, file_path: str):
+        if not file_path.lower().endswith(".qsr"):
+            QMessageBox.warning(self, "Import Error",
+                                f"File {file_path} does not have a .qsr extension")
+            return
+
+        try:
+            with open(file_path, "r") as f:
+                data = json.load(f)
+            
+            # Update the state with the imported ruleset data.
+            self.state.rulesets = {
+                folder_path: Ruleset.from_dict(ruleset_data)
+                for folder_path, ruleset_data in data.items()
+            }
+            
+            print(f"Rulesets imported successfully from {file_path}")
+        except Exception as e:
+            print(f"Failed to import rulesets: {e}")
+    
     def create_restore_point(self):
         print("Create Restore Point clicked")
         folder = FolderInfo.fromPath(self.state.target_directory, True)
@@ -718,7 +738,7 @@ def main():
     if len(sys.argv) > 1:
         file_arg = sys.argv[1]
         if file_arg.lower().endswith(".qsr") and os.path.isfile(file_arg):
-            window.import_ruleset(file_arg)
+            window.import_ruleset_from_file(file_arg)
 
     sys.exit(app.exec())
 
