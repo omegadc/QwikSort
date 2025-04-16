@@ -1,14 +1,14 @@
 import os
 import time
-import Backend.rollback
+import backend.rollback
 from datetime import datetime
 
-from Backend.file_info import FileInfo
-from Backend.folder_info import FolderInfo
-from Backend.sorting_rule import SortingRule
-from Backend.ruleset import Ruleset
-from Backend.condition import Condition
-from Backend.action import Action
+from backend.file_info import FileInfo
+from backend.folder_info import FolderInfo
+from backend.sorting_rule import SortingRule
+from backend.ruleset import Ruleset
+from backend.condition import Condition
+from backend.action import Action
 
 def create_log_file(log_dir="logs"):
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -48,4 +48,4 @@ def run_sorting_job(rulesets, target_folder, log_dir="logs", description="Sortin
         log_file.close()
     
     if all_records:
-        Backend.rollback.record_batch(all_records, description)
+        backend.rollback.record_batch(all_records, description)

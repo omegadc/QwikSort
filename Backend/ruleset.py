@@ -1,7 +1,7 @@
-from Backend.sorting_rule import SortingRule
-from Backend.folder_info import FolderInfo
-from Backend.file_info import FileInfo
-from Backend.rollback import ActionRecord
+from backend.sorting_rule import SortingRule
+from backend.folder_info import FolderInfo
+from backend.file_info import FileInfo
+from backend.rollback import ActionRecord
 
 class Ruleset:
     def __init__(self, folder, match_all=False):

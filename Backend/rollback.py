@@ -2,9 +2,9 @@ import copy
 import os
 from dataclasses import dataclass
 from typing import List, Optional
-from Backend.action import Action
-from Backend.folder_info import FolderInfo
-from Backend.file_info import FileInfo
+from backend.action import Action
+from backend.folder_info import FolderInfo
+from backend.file_info import FileInfo
 from datetime import datetime
 
 folder_restore_point: Optional[FolderInfo] = None

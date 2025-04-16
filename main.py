@@ -1,4 +1,4 @@
-# Frontend UI Imports
+# frontend UI Imports
 import sys
 import ctypes
 import os
@@ -14,20 +14,20 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QDir, QModelIndex, QDateTime, Qt, QCalendar
 from PySide6.QtGui import QPalette, QColor, QIcon
-from Frontend.MainWindow import Ui_MainWindow
-from Frontend.ruleset import Ui_Dialog
-from Frontend.newFolder import Ui_Form
+from frontend.MainWindow import Ui_MainWindow
+from frontend.ruleset import Ui_Dialog
+from frontend.newFolder import Ui_Form
 
-# Backend Functionality Imports
-from Backend.action import Action
-from Backend.sorting_job import run_sorting_job
-from Backend.sorting_rule import SortingRule
-from Backend.condition import Condition
-from Backend.ruleset import Ruleset
-from Backend.folder_info import FolderInfo
-from Backend.file_info import FileInfo
-from Backend.rollback import undo_last, save_restore_point, rollback_to_restore_point
-from Backend.app_state import AppState
+# backend Functionality Imports
+from backend.action import Action
+from backend.sorting_job import run_sorting_job
+from backend.sorting_rule import SortingRule
+from backend.condition import Condition
+from backend.ruleset import Ruleset
+from backend.folder_info import FolderInfo
+from backend.file_info import FileInfo
+from backend.rollback import undo_last, save_restore_point, rollback_to_restore_point
+from backend.app_state import AppState
 
 import sys
 import ctypes

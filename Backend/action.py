@@ -1,5 +1,5 @@
 import os
-from Backend.file_info import FileInfo
+from backend.file_info import FileInfo
 from pathlib import Path
 import send2trash
 import shutil

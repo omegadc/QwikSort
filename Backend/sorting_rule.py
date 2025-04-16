@@ -1,7 +1,7 @@
-from Backend.condition import Condition
-from Backend.action import Action
-from Backend.folder_info import FolderInfo
-from Backend.file_info import FileInfo
+from backend.condition import Condition
+from backend.action import Action
+from backend.folder_info import FolderInfo
+from backend.file_info import FileInfo
 
 class SortingRule:
     def __init__(self, condition, action):
@@ -38,8 +38,8 @@ class SortingRule:
 
     @classmethod
     def from_dict(cls, data):
-        from Backend.condition import Condition
-        from Backend.action import Action
+        from backend.condition import Condition
+        from backend.action import Action
         return cls(
             condition=Condition.from_dict(data["condition"]),
             action=Action.from_dict(data["action"])
