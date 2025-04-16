@@ -20,13 +20,13 @@ from Frontend.newFolder import Ui_Form
 
 # Backend Functionality Imports
 from Backend.action import Action
-from Backend.sorting_job import runSortingJob
+from Backend.sorting_job import run_sorting_job
 from Backend.sorting_rule import SortingRule
 from Backend.condition import Condition
 from Backend.ruleset import Ruleset
 from Backend.folder_info import FolderInfo
 from Backend.file_info import FileInfo
-from Backend.rollback import undoLast, saveRestorePoint, rollbackToRestorePoint
+from Backend.rollback import undo_last, save_restore_point, rollback_to_restore_point
 from Backend.app_state import AppState
 
 import sys
@@ -60,10 +60,10 @@ class NewFolderWindow(QDialog):
         self.ui.setupUi(self)
         self.setup_file_system_model()
         # self.ui.buttonEnter.clicked
-        self.ui.lineEditFolderName.returnPressed.connect(self.createNewFolder)
-        self.ui.buttonEnter.clicked.connect(self.createNewFolder)
+        self.ui.lineEditFolderName.returnPressed.connect(self.create_new_folder)
+        self.ui.buttonEnter.clicked.connect(self.create_new_folder)
     
-    def createNewFolder(self):
+    def create_new_folder(self):
         text = self.ui.lineEditFolderName.text().strip()
         if not text:
             return
@@ -236,10 +236,10 @@ class RulesetWindow(QDialog):
             # Only create a date condition if it's not the default
             if mod_dt.toSecsSinceEpoch() != default_dt.toSecsSinceEpoch():
                 dt = mod_dt.toPython()
-                condition = Condition("dateModified", ">=", dt)
+                condition = Condition("date_modified", ">=", dt)
             elif created_dt.toSecsSinceEpoch() != default_dt.toSecsSinceEpoch():
                 dt = created_dt.toPython()
-                condition = Condition("dateCreated", ">=", dt)
+                condition = Condition("date_created", ">=", dt)
 
         # Check name condition only if no extension or date rule selected
         if condition is None:
@@ -261,15 +261,15 @@ class RulesetWindow(QDialog):
         new_rule = self.get_new_rule()
         if new_rule:
             path = self.state.selected_folder
-            folder = FolderInfo.fromPath(path, False)
+            folder = FolderInfo.from_path(path, False)
 
             if path in self.state.rulesets:
-                self.state.rulesets[path].sortingRules.append(new_rule)
+                self.state.rulesets[path].sorting_rules.append(new_rule)
             else:
-                self.state.rulesets[path] = Ruleset.fromRules(folder, [new_rule])
+                self.state.rulesets[path] = Ruleset.from_rules(folder, [new_rule])
             
             # Update the rule viewer
-            self.main_window.createRulesetWidget(self.state.rulesets[path])
+            self.main_window.create_ruleset_widget(self.state.rulesets[path])
         
         self.accept() # close dialog
 
@@ -315,8 +315,8 @@ class MainWindow(QMainWindow):
         self.ui.actionOpen_Folder.triggered.connect(self.change_directory)
         self.ui.pushbtn_Dir.clicked.connect(self.change_directory)
         self.ui.leTargetDirectory.returnPressed.connect(self.change_home)
-        self.ui.actionCreate_New_Folder.triggered.connect(self.openNewFolder)
-        self.ui.actionDelete_Folder.triggered.connect(self.deleteFolder)
+        self.ui.actionCreate_New_Folder.triggered.connect(self.open_new_folder)
+        self.ui.actionDelete_Folder.triggered.connect(self.delete_folder)
         
         # Connect both single-click and double-click signals
         self.ui.listFiles.clicked.connect(self.on_list_view_single_click)
@@ -346,27 +346,26 @@ class MainWindow(QMainWindow):
 
         # UI actions
         self.ui.pushButton_5.clicked.connect(self.sort)
-        self.ui.pushButton_4.clicked.connect(self.closeEvent)
-        self.ui.pushButton_2.clicked.connect(self.backButtonDir) # BackButton Folder
-        self.ui.pushButton_3.clicked.connect(self.forwardButtonDir) # Forward Button
+        self.ui.pushButton_4.clicked.connect(self.close_event)
+        self.ui.pushButton_2.clicked.connect(self.back_button_dir) # BackButton Folder
+        self.ui.pushButton_3.clicked.connect(self.forward_button_dir) # Forward Button
         self.ui.btnPlus.clicked.connect(self.open_ruleset) # Plus button
         self.ui.btnClear.clicked.connect(self.clear_ruleset) # Clear Button
         self.ui.pushbttn_matchAll.toggled.connect(self.update_match_mode)
         self.ui.pushbttn_matchOne.toggled.connect(self.update_match_mode)
         
         # Clicked Item reveals forwardBttn directory when clicked
-        self.ui.listFiles.clicked.connect(self.oneItemClicked)
+        self.ui.listFiles.clicked.connect(self.on_item_clicked)
 
         # Light/Dark Mode
         self.is_dark_mode = True
         self.set_dark_theme()
 
-    def closeEvent(self):
+    def close_event(self):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("Confirm Action")
         msg_box.setText("This will recycle all files matching all sorting critera. This CANNOT be undone. Are you sure?")
         msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        # msg_box.setIcon(QMessageBox.question)
 
         result = msg_box.exec()
 
@@ -380,14 +379,14 @@ class MainWindow(QMainWindow):
         palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
         self.setPalette(palette)
 
-    def oneItemClicked(self, index: QModelIndex):
+    def on_item_clicked(self, index: QModelIndex):
         # self.filepath = self.model.filePath(index)
         if index.isValid():
             selected_path = self.model.filePath(index)
             if QDir(selected_path).exists():
                 self.filepath = selected_path
 
-    def deleteFolder(self):
+    def delete_folder(self):
         if self.filepath == None:
             QMessageBox.warning(self,
                                 "File does not exist")
@@ -396,7 +395,7 @@ class MainWindow(QMainWindow):
             if QDir(selected_path).exists():
                 os.rmdir(selected_path)
 
-    def forwardButtonDir(self):
+    def forward_button_dir(self):
         if self.filepath == None:
             QMessageBox.warning(self, "Could not go into folder",
                                 "Folder does not exist")
@@ -406,7 +405,7 @@ class MainWindow(QMainWindow):
                 os.chdir(selected_path)
                 self.set_directory(selected_path)
 
-    def backButtonDir(self):
+    def back_button_dir(self):
         path_index = self.ui.listFiles.rootIndex()
         path = self.model.filePath(path_index)
         directory = QDir(path)
@@ -450,7 +449,7 @@ class MainWindow(QMainWindow):
         """
         return self.ui.leTargetDirectory.text()
     
-    def openNewFolder(self):
+    def open_new_folder(self):
         """
         Opens the ruleset dialog window.
         """
@@ -483,11 +482,11 @@ class MainWindow(QMainWindow):
                 self.set_directory(path)
                 self.folder_clicked(path)
     
-    def createRulesetWidget(self, value: Ruleset):
+    def create_ruleset_widget(self, value: Ruleset):
         # self.ruleset
         counter = 0
         self.ui.listRules.clear()
-        for rule in value.sortingRules:
+        for rule in value.sorting_rules:
             # self.ui.listRules
             counter += 1
             rule_item = QTreeWidgetItem([f"Rule {counter}"])
@@ -502,7 +501,7 @@ class MainWindow(QMainWindow):
         self.ui.listRules.expandAll()
 
         # Enable match mode buttons if rules exist
-        has_rules = len(value.sortingRules) > 0
+        has_rules = len(value.sorting_rules) > 0
         self.ui.pushbttn_matchAll.show()
         self.ui.pushbttn_matchOne.show()
 
@@ -570,7 +569,7 @@ class MainWindow(QMainWindow):
 
         if value is not None:
             # print(value, type(value))
-            self.createRulesetWidget(value)
+            self.create_ruleset_widget(value)
 
             # Show match mode radio buttons
             self.ui.pushbttn_matchAll.show()
@@ -591,8 +590,8 @@ class MainWindow(QMainWindow):
         """
         Hook for sorting files when clicking the Sort button (pushButton_5)
         """
-        target = FolderInfo.fromPath(self.state.target_directory, True) 
-        runSortingJob(self.state.rulesets, target, description="User-initiated sort")
+        target = FolderInfo.from_path(self.state.target_directory, True) 
+        run_sorting_job(self.state.rulesets, target, description="User-initiated sort")
         print(f"Ran sorting job successfully on directory {self.state.target_directory}")
 
     def delete(self):
@@ -600,14 +599,14 @@ class MainWindow(QMainWindow):
         # Backup original actions so we can restore them later
         original_actions = []
         for folder, ruleset in self.state.rulesets.items():
-            for rule in ruleset.sortingRules:
+            for rule in ruleset.sorting_rules:
                 # Save a reference to each rule and its original action
                 original_actions.append((rule, rule.action))
                 # Overwrite the rule's action
                 rule.action = Action("recycle")
         
-        target = FolderInfo.fromPath(self.state.target_directory, True)
-        runSortingJob(self.state.rulesets, target,
+        target = FolderInfo.from_path(self.state.target_directory, True)
+        run_sorting_job(self.state.rulesets, target,
                     description="User-initiated recycle action")
 
         # Restore the original actions for all rules
@@ -621,7 +620,7 @@ class MainWindow(QMainWindow):
         Undo the previous sorting operation using the Rollback module
         """
         print("Undo clicked")
-        undoLast()
+        undo_last()
     
     def import_ruleset(self):
         print("Import Ruleset clicked")
@@ -704,12 +703,12 @@ class MainWindow(QMainWindow):
     
     def create_restore_point(self):
         print("Create Restore Point clicked")
-        folder = FolderInfo.fromPath(self.state.target_directory, True)
-        saveRestorePoint(folder)
+        folder = FolderInfo.from_path(self.state.target_directory, True)
+        save_restore_point(folder)
 
     def rollback_to_restore_point(self):
         print("Rollback to Restore Point clicked")
-        rollbackToRestorePoint()
+        rollback_to_restore_point()
     
     def clear_ruleset(self):
         if self.state.selected_folder in self.state.rulesets:

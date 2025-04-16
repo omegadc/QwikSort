@@ -13,7 +13,7 @@ class FileInfo:
 
     # Helper function to retrieve metadata for a file and return a dictionary
     @staticmethod
-    def getMetadata(filePath):
+    def get_metadata(filePath):
         filename, fileextension = os.path.splitext(os.path.basename(filePath))
         filesize = os.path.getsize(filePath)
         fileDateModified = datetime.fromtimestamp(os.path.getmtime(filePath))
@@ -30,15 +30,15 @@ class FileInfo:
 
     # Construct a FileInfo object from the path of the file
     @classmethod
-    def fromPath(cls, filePath):
-        fileMetadata = cls.getMetadata(filePath)
+    def from_path(cls, filePath):
+        file_metadata = cls.get_metadata(filePath)
         return cls(
-            fileMetadata["name"], 
-            fileMetadata["extension"], 
-            fileMetadata["path"], 
-            fileMetadata["size"], 
-            fileMetadata["dateCreated"], 
-            fileMetadata["dateModified"]
+            file_metadata["name"], 
+            file_metadata["extension"], 
+            file_metadata["path"], 
+            file_metadata["size"], 
+            file_metadata["dateCreated"], 
+            file_metadata["dateModified"]
         )
     
     def __repr__(self):

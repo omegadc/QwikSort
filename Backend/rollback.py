@@ -25,7 +25,7 @@ class UndoBatch:
 MAX_UNDO = 5
 undo_stack: List[UndoBatch] = []
 
-def recordBatch(action_records: List[ActionRecord], description: str):
+def record_batch(action_records: List[ActionRecord], description: str):
     batch = UndoBatch(
         timestamp=datetime.now(),
         description=description,
@@ -36,25 +36,7 @@ def recordBatch(action_records: List[ActionRecord], description: str):
     if len(undo_stack) > MAX_UNDO:
         undo_stack.pop(0)
 
-def performSortAndRecord(files: List[FileInfo], action: Action, logger=None, description="Sort Operation"):
-    records = []
-
-    for file in files:
-        new_path = action.get_target_path(file)
-        reverse_action = action.get_reverse_action(file, new_path)
-        action.execute(file, logger=logger)
-
-        record = ActionRecord(
-            forward_action=action,
-            reverse_action=reverse_action,
-            file=file,
-            result_path=new_path
-        )
-        records.append(record)
-
-    recordBatch(records, description)
-
-def undoLast():
+def undo_last():
     if not undo_stack:
         print("No operations to undo.")
         return
@@ -69,7 +51,7 @@ def undoLast():
         except Exception as e:
             print(f"Failed to undo {record.file.path}: {e}")
 
-def saveRestorePoint(folder: FolderInfo):
+def save_restore_point(folder: FolderInfo):
     """
     Save a deep copy of the current FolderInfo snapshot as a restore point.
     
@@ -96,7 +78,7 @@ def find_file(file_name: str, start_dir: str) -> Optional[str]:
             return os.path.join(root, file_name)
     return None
 
-def rollbackToRestorePoint():
+def rollback_to_restore_point():
     """
     Roll back the current directory layout to match the saved restore point.
     
@@ -122,7 +104,7 @@ def rollbackToRestorePoint():
 
         if current_location:
             # Move the file back to its original location
-            action = Action("move", finalFolder=os.path.dirname(snapshot_file.path))
+            action = Action("move", final_folder=os.path.dirname(snapshot_file.path))
 
             # Create a temporary FileInfo instance that reflects the current location.
             temp_file = copy.deepcopy(snapshot_file)

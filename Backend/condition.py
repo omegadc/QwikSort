@@ -19,11 +19,11 @@ class Condition:
         self.operation = operation
         self.value = value
         self.functions = {
-            "name": self.checkName,
-            "extension": self.checkExtension,
-            "size": self.checkSize,
-            "dateCreated": self.checkCreation,
-            "dateModified": self.checkModified
+            "name": self.check_name,
+            "extension": self.check_extension,
+            "size": self.check_size,
+            "dateCreated": self.check_creation,
+            "dateModified": self.check_modified
         }
 
     # Helper function to verify if a file is of type FileInfo
@@ -47,7 +47,7 @@ class Condition:
         return Condition.operators[op](left, right)
     
     # Function to return the class operation to a string
-    def operationToString(self):
+    def operation_to_string(self):
         operation_map = {
             ">": "is greater than",
             "<": "is less than",
@@ -61,7 +61,7 @@ class Condition:
         return operation_map.get(self.operation, f"Unknown operation: {self.operation}")
     
     # Function to compare value to file name
-    def checkName(self, file):
+    def check_name(self, file):
         Condition.verify(file)
 
         if not isinstance(self.value, str):
@@ -70,7 +70,7 @@ class Condition:
         return Condition.evaluate(file.name, self.operation, self.value)
     
     # Function to compare value to file extension
-    def checkExtension(self, file):
+    def check_extension(self, file):
         Condition.verify(file)
 
         if not isinstance(self.value, str):
@@ -79,7 +79,7 @@ class Condition:
         return Condition.evaluate(file.extension, self.operation, self.value)
 
     # Function to compare value to file size
-    def checkSize(self, file):
+    def check_size(self, file):
         Condition.verify(file)
 
         if isinstance(self.value, int):
@@ -91,7 +91,7 @@ class Condition:
         return Condition.evaluate(file.size, self.operation, self.value)
 
     # Function to compare value to file creation date
-    def checkCreation(self, file):
+    def check_creation(self, file):
         Condition.verify(file)
 
         if not isinstance(self.value, datetime):
@@ -100,7 +100,7 @@ class Condition:
         return Condition.evaluate(file.dateCreated, self.operation, self.value)
     
     # Function to compare value to file modified date
-    def checkModified(self, file):
+    def check_modified(self, file):
         Condition.verify(file)
 
         if not isinstance(self.value, datetime):

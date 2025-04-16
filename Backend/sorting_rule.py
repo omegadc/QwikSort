@@ -14,18 +14,18 @@ class SortingRule:
         self.action = action
 
     def __str__(self):
-        conditionType = self.condition.type
+        condition_type = self.condition.type
 
-        if conditionType == "dateCreated":
-            conditionType = "date created"
-        elif conditionType == "dateModified":
-            conditionType = "date modified"
+        if condition_type == "date_created":
+            condition_type = "date created"
+        elif condition_type == "date_modified":
+            condition_type = "date modified"
 
-        return f"If file {conditionType} {self.condition.operationToString()} {self.condition.value}, move file here."
+        return f"If file {condition_type} {self.condition.operation_to_string()} {self.condition.value}, move file here."
     
-    def runRule(self, file):
+    def run_rule(self, file):
         if not isinstance(file, FileInfo):
-            raise ValueError("runRule must take a FileInfo object")
+            raise ValueError("run_rule must take a FileInfo object")
         
         if self.condition.check(file):
             self.action.execute(file)

@@ -6,22 +6,22 @@ import shutil
 import time
 
 class Action:
-    def __init__(self, type, finalFolder = None, newName = None):
+    def __init__(self, type, final_folder = None, new_name = None):
         self.type = type
-        self.newName = newName
+        self.new_name = new_name
         
-        if finalFolder is None:
-            self.finalFolder = finalFolder
-        elif os.path.isdir(finalFolder):
-            self.finalFolder = finalFolder
+        if final_folder is None:
+            self.final_folder = final_folder
+        elif os.path.isdir(final_folder):
+            self.final_folder = final_folder
         else:
-            raise TypeError("Action.finalFolder must be an existing directory")
+            raise TypeError("Action.final_folder must be an existing directory")
         
         self.functions = {
-            "move": self.moveFile,
-            "copy": self.copyFile,
-            "recycle": self.recycleFile,
-            "rename": self.renameFile
+            "move": self.move_file,
+            "copy": self.copy_file,
+            "recycle": self.recycle_file,
+            "rename": self.rename_file
         }
     
     # Helper function to verify if a file is of type FileInfo and if the file actually exists
@@ -33,23 +33,23 @@ class Action:
             raise FileNotFoundError(f"File not found: {file.path}")
     
     # Helper function to get the final path of the file
-    def getTargetPath(self, file):
+    def get_target_path(self, file):
         if self.type in ["move", "copy"]:
-            return os.path.join(self.finalFolder, file.name + file.extension)
+            return os.path.join(self.final_folder, file.name + file.extension)
         elif self.type == "rename":
-            return file.path.replace(file.name, self.newName)
+            return file.path.replace(file.name, self.new_name)
         elif self.type == "recycle":
             return "Recycled"
         return "Unknown"
     
-    def getReverseAction(self, file: FileInfo) -> 'Action':
+    def get_reverse_action(self, file: FileInfo) -> 'Action':
         if self.type == "move":
             print(f"REVERSE: Reverse destination for file at path {file.path} is {os.path.dirname(file.path)}")
-            return Action("move", finalFolder=os.path.dirname(file.path))
+            return Action("move", final_folder=os.path.dirname(file.path))
         elif self.type == "copy":
             return Action("recycle")
         elif self.type == "rename":
-            return Action("rename", newName=file.name)
+            return Action("rename", new_name=file.name)
         elif self.type == "copy":
             return Action("recycle") # Delete the copy
         elif self.type == "recycle":
@@ -60,10 +60,10 @@ class Action:
         
 
     # Function to move a given file to the final folder
-    def moveFile(self, file):
+    def move_file(self, file):
         Action.verify(file)
 
-        destination = os.path.join(self.finalFolder, os.path.basename(file.path))
+        destination = os.path.join(self.final_folder, os.path.basename(file.path))
 
         try:
             if os.path.exists(destination):
@@ -74,23 +74,23 @@ class Action:
 
     
     # Function to copy a given file to the final folder
-    def copyFile(self, file):
+    def copy_file(self, file):
         Action.verify(file)
 
-        if os.path.exists(os.path.join(self.finalFolder, file.path)):
+        if os.path.exists(os.path.join(self.final_folder, file.path)):
             # TODO: Implement overwriting logic
             raise NotImplementedError("Overwrite logic has not been implemented")
         
-        shutil.copy(file.path, self.finalFolder)
+        shutil.copy(file.path, self.final_folder)
 
     # Function to rename a given file
-    def renameFile(self, file):
+    def rename_file(self, file):
         Action.verify(file)
 
-        if not self.newName:
+        if not self.new_name:
             raise ValueError("No argument provided for rename operation")
 
-        new_path = file.path.replace(file.name, self.newName)
+        new_path = file.path.replace(file.name, self.new_name)
 
         if os.path.exists(new_path):
             # TODO: Implement overwriting logic
@@ -99,16 +99,16 @@ class Action:
         os.rename(file.path, new_path)
         
     # Function to recycle a given file
-    def recycleFile(self, file):
+    def recycle_file(self, file):
         Action.verify(file)
 
         clean_path = Path(file.path).resolve()
         send2trash.send2trash(str(clean_path))
     
     # Function to log the action
-    def logAction(self, file, logger):
+    def log_action(self, file, logger):
         old_path = file.path
-        new_path = self.getTargetPath(file)
+        new_path = self.get_target_path(file)
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
         log_entry = f"[{timestamp}] {self.type.upper()} | From: {old_path} -> To: {new_path}\n"
@@ -121,29 +121,29 @@ class Action:
             print(f"ACTION: Executing action of type {self.type}")
             result = self.functions[self.type](file)
             if logger:
-                self.logAction(file, logger)
-            file.path = self.getTargetPath(file)
+                self.log_action(file, logger)
+            file.path = self.get_target_path(file)
             file.name = os.path.basename(file.path)
             return result
         else:
             raise ValueError(f"Invalid key: {self.type}")
     
     def __repr__(self):
-        return (f"Action(type={self.type!r}, finalFolder={self.finalFolder!r}, "
-                f"newName={self.newName!r})")
+        return (f"Action(type={self.type!r}, final_folder={self.final_folder!r}, "
+                f"new_name={self.new_name!r})")
     
     def to_dict(self):
         return {
             "type": self.type,
-            "finalFolder": self.finalFolder,
-            "newName": self.newName
+            "final_folder": self.final_folder,
+            "new_name": self.new_name
         }
 
     @classmethod
     def from_dict(cls, data):
         return cls(
             type=data["type"],
-            finalFolder=data.get("finalFolder"),
-            newName=data.get("newName")
+            final_folder=data.get("final_folder"),
+            new_name=data.get("new_name")
         )
     

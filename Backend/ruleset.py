@@ -8,29 +8,29 @@ class Ruleset:
         if not isinstance(folder, FolderInfo):
             raise ValueError("Ruleset must take a FolderInfo object for the assigned folder")
 
-        self.sortingRules = []
+        self.sorting_rules = []
         self.folder = folder
         self.match_all = match_all
 
-    def runRules(self, file, logger=None):
+    def run_rules(self, file, logger=None):
         records = []
 
         if not isinstance(file, FileInfo):
-            raise ValueError("runRules must take a FileInfo object")
+            raise ValueError("run_rules must take a FileInfo object")
 
         if self.match_all:
-            if all(rule.condition.check(file) for rule in self.sortingRules):
+            if all(rule.condition.check(file) for rule in self.sorting_rules):
                 # Ensure all actions are the same type
-                action_types = [type(rule.action) for rule in self.sortingRules]
+                action_types = [type(rule.action) for rule in self.sorting_rules]
                 if len(set(action_types)) != 1:
                     raise ValueError("All rules must have the same action type when match_all is enabled.")
 
                 # Execute only the final rule's action
-                final_rule = self.sortingRules[-1]
+                final_rule = self.sorting_rules[-1]
                 action = final_rule.action
-                new_path = action.getTargetPath(file)
+                new_path = action.get_target_path(file)
                 if action.type != "recycle":
-                    reverse_action = action.getReverseAction(file)
+                    reverse_action = action.get_reverse_action(file)
 
                 if logger:
                     action.execute(file, logger)
@@ -46,12 +46,12 @@ class Ruleset:
                     )
                     records.append(record)
         else:
-            for rule in self.sortingRules:
+            for rule in self.sorting_rules:
                 if rule.condition.check(file):
                     action = rule.action
-                    new_path = action.getTargetPath(file)
+                    new_path = action.get_target_path(file)
                     if action.type != "recycle":
-                        reverse_action = action.getReverseAction(file)
+                        reverse_action = action.get_reverse_action(file)
 
                     if logger:
                         action.execute(file, logger)
@@ -69,43 +69,43 @@ class Ruleset:
 
         return records
 
-    def addRule(self, rule):
+    def add_rule(self, rule):
         if not isinstance(rule, SortingRule):
-            raise ValueError("addRule must take a SortingRule object")
+            raise ValueError("add_rule must take a SortingRule object")
         
-        self.sortingRules.append(rule)
+        self.sorting_rules.append(rule)
     
-    def deleteRule(self, rule):
+    def delete_rule(self, rule):
         if not isinstance(rule, SortingRule):
-            raise ValueError("deleteRule must take a SortingRule object.")
+            raise ValueError("delete_rule must take a SortingRule object.")
         try:
-            self.sortingRules.remove(rule)
+            self.sorting_rules.remove(rule)
         except ValueError:
             raise ValueError("The rule does not exist in the ruleset.")
     
     @classmethod
-    def fromRules(cls, folder, rules):
+    def from_rules(cls, folder, rules):
         instance = cls(folder)
-        instance.sortingRules = rules
+        instance.sorting_rules = rules
         return instance
     
     def to_dict(self):
         return {
             "folder": self.folder.path,
             "match_all": self.match_all,
-            "rules": [rule.to_dict() for rule in self.sortingRules]
+            "rules": [rule.to_dict() for rule in self.sorting_rules]
         }
 
     @classmethod
     def from_dict(cls, data):
-        folder = FolderInfo.fromPath(
-            folderPath=data["folder"],
-            isTarget=False 
+        folder = FolderInfo.from_path(
+            folder_path=data["folder"],
+            is_target=False 
         )
         ruleset = cls(folder, match_all=data["match_all"])
-        ruleset.sortingRules = [SortingRule.from_dict(rule) for rule in data["rules"]]
+        ruleset.sorting_rules = [SortingRule.from_dict(rule) for rule in data["rules"]]
         return ruleset
 
     
     def __repr__(self):
-        return f"<Ruleset for {self.folder.name} with {len(self.sortingRules)} rules>"
+        return f"<Ruleset for {self.folder.name} with {len(self.sorting_rules)} rules>"
